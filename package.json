@@ -1,0 +1,33 @@
+{
+  "name": "persephonejobportal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "seed": "node --env-file=.env.local scripts/seed.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.58.0",
+    "imapflow": "^1.0.200",
+    "next": "^15.5.29",
+    "nodemailer": "^7.0.10",
+    "pdf-lib": "^1.17.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/node": "^22",
+    "@types/nodemailer": "^7.0.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3"
+  }
+}
