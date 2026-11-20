@@ -1,9 +1,10 @@
 import "server-only";
 import { createClient } from "./supabase/server";
 
+/** The only address allowed into the cockpit, unless COCKPIT_ALLOWED_EMAILS overrides it. */
 export function allowedEmails(): string[] {
   const env = process.env.COCKPIT_ALLOWED_EMAILS;
-  const list = env ? env.split(",") : ["linneajobs@gmail.com", "linnea.moritz@uni.minerva.edu"];
+  const list = env ? env.split(",") : ["linneajobs@gmail.com"];
   return list.map((e) => e.trim().toLowerCase()).filter(Boolean);
 }
 

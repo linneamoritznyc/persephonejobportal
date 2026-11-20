@@ -35,7 +35,7 @@ Update `ps_profile`, `ps_experiences` and `ps_facts` to match exactly:
 - **New portfolio (second site):** https://claude.ai/artifact/SnNTvJAniCa4jQQ7LRdXyB (see section 6)
 - **Art:** linneamoritz.com. 39 exhibitions in 21 cities, 3 first prizes including Stockholms Konstsalong 2024, Keeping Tabs collection on a 70 x 30 m LED display at Art Basel Hong Kong.
 - **Education:** Minerva University, economics and business, GPA 3.6, 1.8% admission rate, studied in 5 countries, mentored 45 students through capstones. UWC Red Cross Nordic, full scholarship, chosen from 120 Swedish applicants, IB bilingual diploma (GPA 3.85).
-- **Email for applications:** linneajobs@gmail.com is the address recruiters see. Drafts land in linneajobs@gmail.com.
+- **Email:** linneajobs@gmail.com is the only email address, for drafts, login and everything recruiters see. Never use any other address of mine.
 
 ---
 

@@ -43,7 +43,7 @@ All hard rules from 02 and 03 still apply:
 
 - One screen: my name in Instrument Serif, one email field, one button "Send magic link". It uses the portfolio palette.
 - Supabase Auth magic link (email OTP). Disable sign-ups in the Supabase dashboard config.
-- **Allowlist:** the env var `COCKPIT_ALLOWED_EMAILS=linneajobs@gmail.com,linneajobs@gmail.com`. Middleware and every server action reject any other email, even with a valid session.
+- **Allowlist:** the env var `COCKPIT_ALLOWED_EMAILS=linneajobs@gmail.com`. Middleware and every server action reject any other email, even with a valid session.
 - After sign-in, redirect to `/app`.
 - `middleware.ts` protects `/app/:path*` and `/api/cockpit/:path*`. No session means a redirect to `/login`.
 - Turn on RLS on every `ps_` table with policy `auth.email() = any(allowed_emails)`. The service role key is used only in cron handlers on the server.
