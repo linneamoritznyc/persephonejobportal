@@ -26,7 +26,7 @@ You are building **Persephone** (repo: `linneamoritznyc/persephonejobportal`), m
 - **Supabase**: create a new project called `persephone` in the EU (Stockholm or Frankfurt). Enable `pgvector` and `pg_trgm`. Apply migrations through the Supabase MCP. Single user (me), with RLS on every table.
 - **Claude API** (`claude-sonnet-4-6` or newer) for skill extraction, scoring explanations and letters. Use pgvector embeddings for fact retrieval, which replaces Qdrant.
 - **Vercel Cron** runs the agent. All calls to Arbetsförmedlingen and job feeds happen server-side.
-- Auth: Supabase magic link, allowed only for my addresses (linnea.moritz@uni.minerva.edu, linneamoritz1@gmail.com, linneajobs@gmail.com).
+- Auth: Supabase magic link, allowed only for my addresses (linnea.moritz@uni.minerva.edu, linneajobs@gmail.com, linneajobs@gmail.com).
 
 ## The smart database (prefix every table `ps_`)
 
