@@ -3,7 +3,6 @@ import { createClient } from "./supabase/server";
 
 export const OWNER_EMAILS = [
   "linnea.moritz@uni.minerva.edu",
-  "linneamoritz1@gmail.com",
   "linneajobs@gmail.com",
 ];
 
