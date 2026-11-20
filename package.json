@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "node --env-file=.env.local scripts/seed.mjs",
-    "typecheck": "tsc --noEmit"
+    "seed": "tsx --conditions=react-server scripts/seed.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --conditions=react-server --test tests/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.68.0",
@@ -15,7 +16,6 @@
     "@supabase/supabase-js": "^2.58.0",
     "imapflow": "^1.0.200",
     "next": "^15.5.29",
-    "nodemailer": "^7.0.10",
     "pdf-lib": "^1.17.1",
     "react": "19.1.1",
     "react-dom": "19.1.1",
@@ -24,10 +24,10 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^22",
-    "@types/nodemailer": "^7.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4.1.14",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }

@@ -1,5 +1,6 @@
 /** Company career feeds: Ashby, Lever, Greenhouse and Teamtailor RSS. */
-import type { RawJob } from "../dedupe";
+import type { RawJob } from "../../dedupe";
+import { NON_PERMANENT } from "../../guard";
 
 const UA = { "user-agent": "Persephone/1.0 (personal job search)", accept: "application/json" };
 
@@ -45,8 +46,10 @@ export async function fetchCompanyFeed(c: CompanyFeed): Promise<RawJob[]> {
         remote: Boolean(j.isRemote) || /remote/i.test(j.workplaceType ?? ""),
         language: "en",
         description: j.descriptionPlain ?? stripHtml(j.descriptionHtml ?? ""),
+        employment_type: j.employmentType === "FullTime" ? "Permanent, full-time" : String(j.employmentType ?? ""),
         raw: { department: j.department, team: j.team, published: j.publishedAt },
-      }));
+      }))
+      .filter((j: any) => /full-time/i.test(j.employment_type));
   }
   if (c.ats === "lever") {
     const data = await res.json();
@@ -64,8 +67,10 @@ export async function fetchCompanyFeed(c: CompanyFeed): Promise<RawJob[]> {
         description: [j.descriptionPlain, ...(j.lists ?? []).map((l: any) => `${l.text}\n${stripHtml(l.content)}`), j.additionalPlain]
           .filter(Boolean)
           .join("\n\n"),
+        employment_type: /full|permanent/i.test(j.categories?.commitment ?? "") ? "Permanent, full-time" : String(j.categories?.commitment ?? ""),
         raw: { team: j.categories?.team, commitment: j.categories?.commitment },
-      }));
+      }))
+      .filter((j: any) => /full-time/i.test(j.employment_type) && !NON_PERMANENT.test(j.title));
   }
   if (c.ats === "greenhouse") {
     const data = await res.json();
@@ -81,7 +86,9 @@ export async function fetchCompanyFeed(c: CompanyFeed): Promise<RawJob[]> {
         remote: /remote/i.test(j.location?.name ?? ""),
         language: "en",
         description: stripHtml(j.content ?? ""),
-      }));
+        employment_type: NON_PERMANENT.test(`${j.title} ${stripHtml(j.content ?? "").slice(0, 1500)}`) ? "Not permanent" : "Permanent, full-time",
+      }))
+      .filter((j: any) => j.employment_type.startsWith("Permanent"));
   }
   // Teamtailor and other RSS feeds
   const xml = await res.text();
@@ -95,7 +102,26 @@ export async function fetchCompanyFeed(c: CompanyFeed): Promise<RawJob[]> {
     remote: /remote|distans/i.test(`${it.title} ${it.location}`),
     language: /\b(the|and|you)\b/i.test(it.description) ? "en" : "sv",
     description: stripHtml(it.description),
-  }));
+    employment_type: NON_PERMANENT.test(`${it.title} ${stripHtml(it.description).slice(0, 1500)}`) ? "Not permanent" : "Permanent, full-time",
+  })).filter((j) => j.employment_type.startsWith("Permanent"));
+}
+
+/** Detects the ATS behind a careers or job URL. */
+export function detectAts(url: string): { ats: string; slug?: string } {
+  const u = url.toLowerCase();
+  let m;
+  if ((m = u.match(/jobs\.ashbyhq\.com\/([^/?#]+)/))) return { ats: "ashby", slug: m[1] };
+  if ((m = u.match(/(?:jobs|boards)\.lever\.co\/([^/?#]+)/))) return { ats: "lever", slug: m[1] };
+  if ((m = u.match(/greenhouse\.io\/(?:embed\/job_board\?for=)?([^/?#&]+)/))) return { ats: "greenhouse", slug: m[1] };
+  if (u.includes("teamtailor") || /\/jobs\/\d+-/.test(u)) return { ats: "teamtailor" };
+  return { ats: "generic" };
+}
+
+export function feedUrlFor(ats: string, slug: string): string {
+  if (ats === "ashby") return `https://api.ashbyhq.com/posting-api/job-board/${slug}?includeCompensation=true`;
+  if (ats === "lever") return `https://api.lever.co/v0/postings/${slug}?mode=json`;
+  if (ats === "greenhouse") return `https://boards-api.greenhouse.io/v1/boards/${slug}/jobs?content=true`;
+  return slug;
 }
 
 export function parseRss(xml: string): { title: string; link: string; guid: string; description: string; location: string; pubDate: string }[] {

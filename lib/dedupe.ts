@@ -28,6 +28,9 @@ export interface RawJob {
   salary_currency?: string;
   deadline?: string | null;
   raw?: unknown;
+  employment_type?: string;
+  municipality?: string;
+  published_at?: string | null;
 }
 
 const PRIORITY: Record<string, number> = { company: 0, jobtech: 1, remote: 2 };

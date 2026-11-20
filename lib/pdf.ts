@@ -105,6 +105,7 @@ export interface CvInput {
   education: string[];
   languages: string;
   extras: string[];
+  labels?: { experience: string; skills: string; education: string; languages: string; also: string };
 }
 
 export async function renderCv(cv: CvInput): Promise<Uint8Array> {
@@ -117,7 +118,8 @@ export async function renderCv(cv: CvInput): Promise<Uint8Array> {
   w.text(cv.contact, { size: 8.5, color: MUTED, gap: 4 });
   w.text(cv.summary, { size: 9.5, gap: 2 });
 
-  w.heading("Experience");
+  const L = cv.labels ?? { experience: "Experience", skills: "Skills", education: "Education", languages: "Languages", also: "Projects and more" };
+  w.heading(L.experience);
   for (const e of cv.experiences) {
     w.ensure(40);
     w.text(`${e.title}, ${e.org}`, { font: fonts.sansBold, size: 10 });
@@ -125,14 +127,14 @@ export async function renderCv(cv: CvInput): Promise<Uint8Array> {
     for (const b of e.bullets) w.text(`•  ${b}`, { size: 9.2, indent: 8 });
     w.y -= 4;
   }
-  w.heading("Skills");
+  w.heading(L.skills);
   w.text(cv.skills.join("  ·  "), { size: 9.2 });
-  w.heading("Education");
+  w.heading(L.education);
   for (const e of cv.education) w.text(e, { size: 9.2 });
-  w.heading("Languages");
+  w.heading(L.languages);
   w.text(cv.languages, { size: 9.2 });
   if (cv.extras.length) {
-    w.heading("Also");
+    w.heading(L.also);
     for (const e of cv.extras) w.text(`•  ${e}`, { size: 9.2, indent: 8 });
   }
   return doc.save();

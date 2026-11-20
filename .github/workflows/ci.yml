@@ -1,0 +1,23 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: No send capability (drafts only)
+        run: |
+          if grep -rniE "sendMail|messages\.send|smtp|resend|postmark|sendgrid" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=docs --exclude=package-lock.json --exclude=ci.yml --exclude=rules.test.ts . ; then
+            echo "Send-capable code found"; exit 1; fi
+      - name: Banned terms
+        run: |
+          if grep -rliE "lotus|careergenius|pitchgenius|vcgenius" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.github . | grep -vE "^./(lib/guard.ts|docs/prompts/0[23]-[a-z-]+\.md|tests/rules.test.ts)$" ; then
+            echo "Banned term found"; exit 1; fi
+      - run: npx tsc --noEmit
+      - run: npm test
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

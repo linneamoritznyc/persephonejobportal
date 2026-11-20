@@ -2,11 +2,11 @@
   "framework": "nextjs",
   "regions": ["arn1"],
   "functions": {
-    "app/api/cron/agent/route.ts": { "maxDuration": 300 },
-    "app/api/agent/run/route.ts": { "maxDuration": 300 },
+    "app/api/cron/daily/route.ts": { "maxDuration": 300 },
+    "app/api/cockpit/run/route.ts": { "maxDuration": 300 },
     "app/api/oracle/route.ts": { "maxDuration": 300 }
   },
   "crons": [
-    { "path": "/api/cron/agent", "schedule": "30 4,5 * * *" }
+    { "path": "/api/cron/daily", "schedule": "30 4,5 * * *" }
   ]
 }
