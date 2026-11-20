@@ -6,7 +6,7 @@ create extension if not exists pg_trgm with schema extensions;
 create or replace function public.ps_is_owner() returns boolean
 language sql stable security definer set search_path = public as $$
   select coalesce(lower(auth.jwt() ->> 'email') in (
-    'linnea.moritz@uni.minerva.edu','linneamoritz1@gmail.com','linneajobs@gmail.com'), false);
+    'linnea.moritz@uni.minerva.edu','linneajobs@gmail.com'), false);
 $$;
 
 -- ===== Who I am =====
