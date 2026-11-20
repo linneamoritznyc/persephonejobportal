@@ -59,8 +59,13 @@ nav a.cta{text-decoration:none;background:var(--red);color:#fff;border-radius:99
 .card .body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:12px;flex:1}
 .card .kind{font-size:14px;color:var(--mute)}
 .card p{color:var(--mute)}
-.card ul{margin:0;padding-left:18px;color:var(--ink)}
-.card li{margin:4px 0}
+.moves{margin:0;display:grid;gap:10px}
+.moves div{display:grid;grid-template-columns:4.8em minmax(0,1fr);gap:10px}
+.moves dt{font-weight:600;font-size:14px;color:var(--red);padding-top:2px}
+.moves div:nth-child(2) dt{color:var(--blue)}
+.moves div:nth-child(3) dt{color:var(--ochre)}
+.moves dd{margin:0;font-size:15px}
+.moves div:nth-child(3) dd{font-weight:500}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
 .tags span{font-size:13px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--mute);background:var(--bg)}
 .card a.go{font-weight:500;font-size:15px;text-decoration:none;color:var(--red)}
@@ -111,22 +116,22 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
 <div class="top">
 <div>
 <h1 class="name">Linnea Moritz</h1>
-<p class="lead"><b>I build AI systems that people actually use</b>: voice agents, automations, labor-market tools and martech pipelines. I paint cubist oil paintings too, and that eye shows in everything I ship. Moving to Stockholm.</p>
+<p class="lead"><b>I find the structure inside messy problems, build the tool that fixes them, and bring people along to use it.</b> Voice agents, labor-market graphs, martech pipelines and video. I am also a cubist painter. Moving to Stockholm for a full-time role.</p>
 </div>
 <div class="stats" aria-label="Highlights">
-<div class="stat"><strong>11</strong><span>production web apps in 2 months</span></div>
-<div class="stat"><strong>6.9x</strong><span>more Smart Bidding signal per month</span></div>
-<div class="stat"><strong>16</strong><span>manual calls a day replaced by my voice agent</span></div>
+<div class="stat"><strong>28,224</strong><span>high-intent users found that ads never learned from</span></div>
+<div class="stat"><strong>11</strong><span>production web apps shipped in 2 months</span></div>
+<div class="stat"><strong>2,000+</strong><span>applicants guided in 40+ countries</span></div>
 <div class="stat"><strong>39</strong><span>art exhibitions in 21 cities</span></div>
 </div>
 </div>
-<div class="canvas" aria-label="Generated cubist composition"><svg id="hero" role="img" aria-label="Cubist composition of faceted planes"></svg><span class="cap">Every project is one plane of the same painting</span></div>
+<div class="canvas" aria-label="Generated cubist composition"><svg id="hero" role="img" aria-label="Cubist composition of faceted planes"></svg><span class="cap">See it, build it, share it</span></div>
 </div></header>
 
 <section class="band" id="work"><div class="wrap">
 <div class="sec-head">
 <h2>Selected work</h2>
-<p>Real systems for real clients and real users. Each one solved a problem I could measure, and most of them I built end to end, from data model to interface.</p>
+<p>Each project follows the same three moves: I saw something others missed, I built the fix end to end, and real people used it.</p>
 </div>
 <div class="filters" role="group" aria-label="Filter projects" id="filters"></div>
 <div class="grid" id="cards"></div>
@@ -135,6 +140,16 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
 <section class="band" id="skills" style="padding-top:0"><div class="wrap">
 <div class="sec-head"><h2>What I work with</h2><p>I pick the fastest tool for the job, and I fix the code underneath when it breaks.</p></div>
 <div class="skills" id="skillList"></div>
+</div></section>
+
+<section class="band" id="people" style="padding-top:0"><div class="wrap">
+<div class="sec-head"><h2>People I've brought along</h2><p>The tools matter because people use them. I have spent years getting people to come along with me.</p></div>
+<div class="art-facts" style="color:var(--ink)">
+<div><strong>2,000+</strong><span style="color:var(--mute)">applicants guided one by one, in 40+ countries</span></div>
+<div><strong>196</strong><span style="color:var(--mute)">Nordic schools in my outreach CRM</span></div>
+<div><strong>45</strong><span style="color:var(--mute)">students mentored through capstone projects</span></div>
+<div><strong>120,000 kr</strong><span style="color:var(--mute)">raised at 15 for women's education in Ethiopia</span></div>
+</div>
 </div></section>
 
 <section class="band" id="path" style="background:var(--card)"><div class="wrap split">
@@ -179,15 +194,15 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
 <script>
 {
 const projects=[
-{f:"AI",kind:"The Financial Healer · Cleveland, 2026",t:"A voice agent that does the calling",d:"For The Financial Healer, a credit-repair company in Cleveland, I rebuilt operations around AI, as product and technical lead.",pts:["AI voice agent (Retell AI, ElevenLabs, Claude) replaced 16 manual calls a day","Square to CRM webhook chain runs in under 60 seconds","AES-256 credential vault and a Notion COO command center","The client grew 5x"],tags:["Retell AI","ElevenLabs","Claude API","Supabase","Railway"],seed:11},
-{f:"Labor",kind:"Labor-market intelligence · Crosstrees",t:"Kompetensgrafen",d:"A graph of occupations and skills that shows where a region lacks people, who nearby already has the overlap, and what training closes the gap.",pts:["Neo4j graph on the ESCO taxonomy","Arbetsförmedlingen substitutability data and SCB statistics","Fit scores with Wilson confidence intervals, never a fake default"],tags:["Neo4j","FastAPI","Next.js","JobTech APIs"],seed:23},
-{f:"Labor",kind:"Decision support for municipalities · Crosstrees",t:"From 63 to 11 million SEK",d:"When requests add up to 63 million and the budget is 11, this tool shows which past investments made a real difference.",pts:["Synthetic control twin built from 290 Swedish municipalities","Difference-in-differences check and Monte Carlo uncertainty","Linear programming to prioritise competing requests","Swedish PDF reports from plain-language questions"],tags:["Python","Kolada","SCB PxWeb","Optimisation"],url:"https://from63to11million-sek-65ry.vercel.app/beslut",seed:37},
-{f:"Labor",kind:"Job search, built for real people",t:"Vetlandajobb and the Anti-Apathy Portal",d:"Two job apps I built: one that turns a job ad into a Gmail draft with the right CV, and one that shows a town's residents the jobs they match.",pts:["Job URL to finished Gmail draft in under 60 seconds","Live Platsbanken data through the JobSearch API","Skill-match scores with a path to the jobs you almost match"],tags:["Next.js","FastAPI","Claude API","Gmail"],seed:41},
-{f:"Martech",kind:"Martech case study",t:"Lead scoring for SEM",d:"A propensity-tier system in SQL on the GA4 BigQuery export that feeds Smart Bidding the signal it was missing.",pts:["959 to 6,603 training events per month (6.9x)","20% lower cost per acquisition","Found 28,224 high-intent users with 0% conversion"],tags:["BigQuery","SQL","GTM Server","Google Ads OCI"],url:"https://bigquery-lead-scoring-sem.replit.app/",seed:53},
-{f:"Content",kind:"Digital and content · Soil Food Web Foundation, 2026",t:"A global nonprofit's new website, Shorts and shop",d:"I run digital, content and grants for a nonprofit teaching soil biology to about 10,000 students worldwide.",pts:["Website launch: 197 workshop images, the redirect plan, 68 staging bugs","YouTube Shorts posting 4 times a week to about 50,000 Instagram followers","First merch store, Shopify and Printful, set up in 2 weeks"],tags:["Remotion","Shopify","Later","Claude Code"],seed:67},
-{f:"AI",kind:"Consumer app · Mother of Many, 2026",t:"PrePartum",d:"An iOS app for a mother's emotional preparation for motherhood, launched on the App Store in April 2026.",pts:["5 mother personas and a 24-question intake","95 reflection questions and AI practice conversations","$9 a month subscription"],tags:["iOS","Lovable","Replit","AI"],url:"https://prepartum.mom/",seed:71},
-{f:"Content",kind:"Broadcast rescue · Apex Institute",t:"A national TV ad, rebuilt in code",d:"A frame-by-frame audit and rebuild of a 30-second national TV commercial so it could air.",pts:["Prioritised issue list and revision brief","Motion graphics rebuilt in Remotion","Voiceover through ElevenLabs"],tags:["Remotion","ElevenLabs","Airtable"],seed:83},
-{f:"AI",kind:"Tools for Swedish companies",t:"Bidragsguiden and CBAM-Validator",d:"Two compliance and funding tools: one matches companies to grants, one checks exposure to the EU carbon border tax.",pts:["8-step quiz with structured Claude results","Supabase row level security and rate limiting","Launched CBAM-Validator in February 2026"],tags:["Next.js","Claude API","Supabase"],url:"https://bidragsguiden.vercel.app/",seed:97}
+{f:"AI",kind:"The Financial Healer · Cleveland, 2026",t:"A voice agent that does the calling",saw:"A growing credit-repair client spending its day on 16 manual calls.",built:"An AI voice agent on Retell AI, ElevenLabs and Claude, a Square to CRM chain that runs in under 60 seconds, an AES-256 vault and a Notion COO command center.",reached:"The client grew 5x.",tags:["Retell AI","ElevenLabs","Claude API","Supabase","Railway"],seed:11},
+{f:"Labor",kind:"Labor-market intelligence · Crosstrees",t:"Kompetensgrafen",saw:"1,340 machine operators in one county with 68% skill overlap with wind turbine technicians, a shortage occupation.",built:"A Neo4j graph on ESCO and Arbetsförmedlingen substitutability data, ranked with Personalized PageRank, that suggests the course or relocation package to close each gap.",reached:"Built for regional skills councils, and pitched to Kompetensrådet.",tags:["Neo4j","ESCO","PageRank","JobTech APIs"],seed:23},
+{f:"Labor",kind:"Decision support for municipalities · Crosstrees",t:"From 63 to 11 million SEK",saw:"Municipalities cut 52 of 63 million SEK in requests with no evidence of which past investments worked.",built:"A synthetic twin municipality from 290 Swedish municipalities, a difference-in-differences check, Monte Carlo uncertainty and linear programming for priorities.",reached:"Plain Swedish PDF reports a kommunstyrelse can use in its next budget.",tags:["Python","Kolada","SCB PxWeb","Optimisation"],url:"https://from63to11million-sek-65ry.vercel.app/beslut",seed:37},
+{f:"Labor",kind:"Job search tools",t:"Vetlandajobb and the Anti-Apathy Portal",saw:"Every application costs about 30 minutes of draining, repetitive work.",built:"A portal that turns a job URL into a Gmail draft with the right CV in under 60 seconds, and a local job app with live Platsbanken data and skill-match scores.",reached:"Jobseekers in Vetlanda, a town of 27,528.",tags:["Next.js","FastAPI","Claude API","Gmail"],seed:41},
+{f:"Martech",kind:"Martech case study",t:"Lead scoring for SEM",saw:"28,224 high-intent users with 0% conversion, invisible to Smart Bidding.",built:"Propensity tiers in SQL on the GA4 BigQuery export, sent to Google Ads through server-side GTM and offline conversion import.",reached:"6.9x more training events per month (959 to 6,603) and 20% lower cost per acquisition.",tags:["BigQuery","SQL","GTM Server","Google Ads OCI"],url:"https://bigquery-lead-scoring-sem.replit.app/",seed:53},
+{f:"Content",kind:"Digital and content · Soil Food Web Foundation, 2026",t:"A global nonprofit's website, Shorts and shop",saw:"A soil-biology school with a global audience and a website relaunch to land.",built:"197 workshop images, copy for every workshop page, the redirect plan, 68 staging bugs logged, Shorts four times a week and a Shopify and Printful store in 2 weeks.",reached:"About 50,000 Instagram followers, plus YouTube and Facebook.",tags:["Remotion","Shopify","Later","Claude Code"],seed:67},
+{f:"AI",kind:"Consumer app · Mother of Many, 2026",t:"PrePartum",saw:"Mothers prepare for birth, and the emotional side of motherhood gets far less support.",built:"An iOS app with 5 mother personas, a 24-question intake, 95 reflection questions and AI practice conversations.",reached:"Launched on the App Store in April 2026, $9 a month.",tags:["iOS","Lovable","Replit","AI"],url:"https://prepartum.mom/",seed:71},
+{f:"Content",kind:"Broadcast rescue · Apex Institute",t:"A national TV ad, rebuilt in code",saw:"A 30-second national commercial with issues that blocked it from airing.",built:"A frame-by-frame audit, a prioritised revision brief, motion graphics rebuilt in Remotion and voiceover through ElevenLabs.",reached:"A rebuilt cut for a national TV audience.",tags:["Remotion","ElevenLabs","Airtable"],seed:83},
+{f:"AI",kind:"Tools for Swedish companies",t:"Bidragsguiden and CBAM-Validator",saw:"Swedish SMEs miss grants and underestimate their exposure to the EU carbon border tax.",built:"An 8-step grant quiz with structured Claude results, Supabase row level security and rate limiting, and a CBAM exposure checker.",reached:"CBAM-Validator launched in February 2026.",tags:["Next.js","Claude API","Supabase"],url:"https://bidragsguiden.vercel.app/",seed:97}
 ];
 const time=[
 ["2026 to now","Soil Food Web Foundation","Contractor: digital, content and grants"],
@@ -230,7 +245,7 @@ const fb=document.getElementById("filters");
 fb.innerHTML=kinds.map(k=>`<button type="button" id="f-${k}" data-k="${k}" aria-pressed="${k===cur}">${names[k]}</button>`).join("");
 const grid=document.getElementById("cards");
 function render(){
-grid.innerHTML=projects.filter(p=>cur==="All"||p.f===cur).map((p,i)=>`<article class="card"><div class="art"><svg data-seed="${p.seed}" aria-hidden="true"></svg></div><div class="body"><span class="kind">${p.kind}</span><h3>${p.t}</h3><p>${p.d}</p><ul>${p.pts.map(x=>`<li>${x}</li>`).join("")}</ul>${p.url?`<a class="go" href="${p.url}">Open the project</a>`:""}<div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div></div></article>`).join("");
+grid.innerHTML=projects.filter(p=>cur==="All"||p.f===cur).map((p,i)=>`<article class="card"><div class="art"><svg data-seed="${p.seed}" aria-hidden="true"></svg></div><div class="body"><span class="kind">${p.kind}</span><h3>${p.t}</h3><dl class="moves"><div><dt>Saw</dt><dd>${p.saw}</dd></div><div><dt>Built</dt><dd>${p.built}</dd></div><div><dt>Reached</dt><dd>${p.reached}</dd></div></dl>${p.url?`<a class="go" href="${p.url}">Open the project</a>`:""}<div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div></div></article>`).join("");
 grid.querySelectorAll("svg[data-seed]").forEach(s=>{const W=s.clientWidth||360,H=s.clientHeight||170;s.setAttribute("viewBox",`0 0 ${W} ${H}`);s.setAttribute("preserveAspectRatio","xMidYMid slice");s.innerHTML=`<rect width="${W}" height="${H}" fill="color-mix(in srgb,var(--plum) 14%,var(--card))"/>`+cubist(+s.dataset.seed,W,H,14,false,pal)});
 }
 fb.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cur=b.dataset.k;fb.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.k===cur));render()});
