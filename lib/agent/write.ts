@@ -31,8 +31,9 @@ export function checkOutgoing(text: string, what: string): string {
   return t;
 }
 
-export function pickCv(ctx: Ctx, family: string | null, isBig: boolean, language: string | null): string {
+export function pickCv(ctx: Ctx, family: string | null, isBig: boolean, language: string | null, jobTitle?: string): string {
   const fam = family && /^[1-6]$/.test(family) ? family : "1";
+  if (fam === "5" && /product|engineer|builder/i.test(jobTitle ?? "")) return "5T";
   // Startup register in English by default; Swedish corporate only for Swedish-language ads at big companies.
   return isBig && language === "sv" ? `${fam}C` : `${fam}S`;
 }
@@ -79,7 +80,7 @@ export interface Written {
 export async function writeApplication(ctx: Ctx, job: any, match: { primary_gift?: string | null; gift_read?: any; family_id?: string | null }, meter?: CostMeter, instruction?: string): Promise<Written> {
   const family = match.family_id ?? job.family_id ?? null;
   const company = ctx.companies.find((c: any) => c.id === job.company_id || c.name === job.company_name);
-  const cv = pickCv(ctx, family, !!company?.is_big_company, job.language);
+  const cv = pickCv(ctx, family, !!company?.is_big_company, job.language, job.title);
   const facts = await retrieveFacts(ctx, job, family);
   const gr = match.gift_read ?? {};
   const gift = (id?: string) => ctx.gifts.find((g: any) => g.id === id);

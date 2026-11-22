@@ -47,8 +47,10 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
   const top3 = (stories ?? []).sort((a: any, b: any) => (giftIds.indexOf(a.gift_id) + 1 || 9) - (giftIds.indexOf(b.gift_id) + 1 || 9) || (b.role_families?.includes(fam) ? 1 : 0) - (a.role_families?.includes(fam) ? 1 : 0)).slice(0, 3);
   const { data: facts } = await sb.from("ps_facts").select("id,text").in("id", (drafts ?? []).flatMap((d: any) => d.fact_ids ?? []));
   const matched = [...(c?.matched ?? []), ...(v?.matched ?? [])];
-  const d = days(job.deadline);
   const desc = job.full_description ?? job.description ?? "";
+  const d = days(job.deadline);
+  const { data: learning } = await sb.from("ps_skills").select("name,gap_note").eq("learning_target", true);
+  const gapNotes = (learning ?? []).filter((l: any) => new RegExp(l.name.split(" ")[0], "i").test(`${desc} ${(skills ?? []).map((s: any) => s.skill_name).join(" ")}`) || fam === "5");
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
@@ -91,6 +93,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
               </ul>
             </div>
           ) : null}
+          {gapNotes.length ? <div className="mt-3 space-y-1">{gapNotes.map((g: any) => <p key={g.name} className="text-xs text-amber">Gap: {g.name}. {g.gap_note}</p>)}</div> : null}
           {skills?.length ? <p className="text-xs text-muted mt-3">Ad skills: {skills.map((s: any) => `${s.skill_name} (${s.importance}${s.years_required ? `, ${s.years_required}y` : ""})`).join(", ")}</p> : null}
         </div>
 

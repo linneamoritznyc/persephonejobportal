@@ -21,6 +21,8 @@ export const PROFILE = {
   salary_min_sek: 45000,
   salary_max_sek: 60000,
   us_contract_floor_usd: null as number | null,
+  salary_target_sek: 70000,
+  salary_targets: { family5_product: 70000, analyst_spoken: "50,000 to 55,000" },
   start_date: "2027-01-01",
   salary_answer: "Based on the role, I'm looking at 50,000 to 55,000 per month.",
   stability_answer: "I want one team and one product for years.",
@@ -619,6 +621,14 @@ export const CV_BRANCHES = [
   { fam: 6, base: "A", lead: "I turn messy public data and business problems into decisions people can act on", proof: ["F-63-TWIN", "F-KG-1340", "F-LS-USERS"], extra: ["F-FH-VOICE", "F-SFW-GRANTS", "F-NF", "F-LS-CPA"] },
 ];
 
+/** 05: the T&S Builder branch (family 5, aimed at product roles). */
+export const CV_TS_BUILDER = { code: "5T", fam: 5, lead: "I know Trust & Safety policy from the inside, and I build the product myself.", proof: ["F-CH-SOLE", "F-TT", "F-YT", "F-GT-100", "F-IND-11APPS", "F-FH-BUGS"], extra: ["F-CH-SLA", "F-CH-SOP", "F-FH-VOICE"] };
+
+export const LEARNING_TARGETS = [
+  { name: "DSA (Digital Services Act)", gap_note: "Learning target: read the DSA notice-and-action and transparency reporting duties before T&S interviews." },
+  { name: "NCMEC reporting", gap_note: "Learning target: know the NCMEC CyberTipline reporting flow and when platforms must report." },
+];
+
 export const CV_BASES = [
   { code: "A", name: "A: AI Builder", lead: "I build AI tools that businesses run on every day", fams: [1, 3], proof: ["F-FH-VOICE", "F-IND-11APPS", "F-BIDRAG"] },
   { code: "B", name: "B: Martech", lead: "Google Ads background, now building the data and automation side", fams: [2], proof: ["F-GT-100", "F-LS-EVENTS", "F-IND-GA4"] },
@@ -670,12 +680,15 @@ export const COMPANIES = [
   { name: "Lovable", size: "scaleup", big: false, ats: "ashby", feed: "https://api.ashbyhq.com/posting-api/job-board/lovable?includeCompensation=true", careers: "https://lovable.dev/careers" },
   { name: "ElevenLabs", size: "scaleup", big: false, ats: "ashby", feed: "https://api.ashbyhq.com/posting-api/job-board/elevenlabs?includeCompensation=true", careers: "https://elevenlabs.io/careers" },
   { name: "Legora", size: "scaleup", big: false, ats: "ashby", feed: "https://api.ashbyhq.com/posting-api/job-board/legora?includeCompensation=true", careers: "https://legora.com/careers" },
-  { name: "Spotify", size: "large", big: true, ats: "lever", feed: "https://api.lever.co/v0/postings/spotify?mode=json", careers: "https://www.lifeatspotify.com/jobs" },
+  { name: "Spotify", size: "large", big: true, ats: "lever", feed: "https://api.lever.co/v0/postings/spotify?mode=json", careers: "https://www.lifeatspotify.com/jobs", title_filter: "trust|safety|integrity|moderation|DSA|fraud|risk" },
   { name: "Aarke", size: "scaleup", big: false, ats: "teamtailor", feed: "https://career.aarke.com/jobs.rss", careers: "https://career.aarke.com/jobs", contact_name: "Anna Korling", contact_email: "anna@aarke.com" },
   { name: "Nextory", size: "scaleup", big: false, ats: "teamtailor", feed: "https://career.nextory.com/jobs.rss", careers: "https://career.nextory.com/jobs" },
   { name: "Sana", size: "scaleup", big: false, ats: "other", feed: null, careers: "https://sanalabs.com/careers" },
   { name: "Klarna", size: "large", big: true, ats: "other", feed: null, careers: "https://www.klarna.com/careers/" },
-  { name: "Epidemic Sound", size: "scaleup", big: false, ats: "other", feed: null, careers: "https://www.epidemicsound.com/careers/" },
+  { name: "Epidemic Sound", size: "scaleup", big: false, ats: "ashby", feed: "https://api.ashbyhq.com/posting-api/job-board/epidemic-sound?includeCompensation=true", careers: "https://www.epidemicsound.com/careers/" },
+  { name: "Besedo", size: "scaleup", big: false, ats: "teamtailor", feed: "https://careers.besedo.com/jobs.rss", careers: "https://careers.besedo.com/jobs", title_filter: "trust|safety|integrity|moderation|DSA|fraud|risk" },
+  { name: "King", size: "large", big: true, ats: "smartrecruiters", feed: "https://api.smartrecruiters.com/v1/companies/King/postings?limit=100", careers: "https://careers.king.com/", title_filter: "trust|safety|integrity|moderation|DSA|fraud|risk" },
+  { name: "Tibber", size: "scaleup", big: false, ats: "teamtailor", feed: "https://tibber.teamtailor.com/jobs.rss", careers: "https://tibber.com/careers", title_filter: "trust|safety|integrity|moderation|DSA|fraud|risk" },
   { name: "Fortnox", size: "large", big: true, ats: "other", feed: null, careers: "https://www.fortnox.se/om-fortnox/jobba-hos-oss" },
   { name: "H&M", size: "large", big: true, ats: "workday", feed: null, careers: "https://career.hm.com/" },
   { name: "SEB", size: "large", big: true, ats: "other", feed: null, careers: "https://sebgroup.com/career" },
@@ -688,7 +701,7 @@ export const COMPANIES = [
 export const BLOCKED = ["Precis", "Precis Digital", "Outlier", "Lionbridge", "Remotasks", "DataAnnotation", "Appen", "TELUS AI", "Scale AI"];
 
 /** The 21 target roles from 02 section 3. */
-export const TARGETS: { wave: string; company: string; title: string; fam: number; status: "open" | "check" | "closed" | "rolling" | "deadline"; deadline?: string; vetlanda?: number }[] = [
+export const TARGETS: { wave: string; company: string; title: string; fam: number; status: "open" | "check" | "closed" | "rolling" | "deadline"; deadline?: string; vetlanda?: number; url?: string }[] = [
   { wave: "1", company: "Lovable", title: "Creative Technologist", fam: 4, status: "open" },
   { wave: "1", company: "Lovable", title: "Product Experience Specialist", fam: 3, status: "open", vetlanda: 88 },
   { wave: "1", company: "Lovable", title: "Member of Technical Staff, Applied AI (Marketing)", fam: 1, status: "open" },
@@ -710,6 +723,9 @@ export const TARGETS: { wave: string; company: string; title: string; fam: numbe
   { wave: "3", company: "KPMG", title: "AI Solutions Engineer, Tax & Legal Technology", fam: 6, status: "check" },
   { wave: "3", company: "Deloitte", title: "AI & Data consultants", fam: 6, status: "check" },
   { wave: "3", company: "Spotify", title: "Backend Engineer II, Trust & Safety", fam: 5, status: "check" },
+  { wave: "1", company: "Besedo", title: "Product Manager, Implio", fam: 5, status: "check", url: "https://careers.besedo.com/jobs/7628170-product-manager-implio" },
+  { wave: "1", company: "Lovable", title: "Trust & Safety Analyst Engineer", fam: 5, status: "open", url: "https://lovable.dev/careers/trust-and-safety-analyst-engineer-9b35a1" },
+  { wave: "1", company: "Lovable", title: "Platform Safety Analyst", fam: 5, status: "open", url: "https://lovable.dev/careers/platform-safety-analyst-9b35a1" },
   { wave: "later", company: "SEB", title: "Tech Trainee Programme 2027-28, AI Engineer", fam: 1, status: "deadline", deadline: "2027-01-10" },
 ];
 

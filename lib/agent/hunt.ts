@@ -44,7 +44,7 @@ export async function hunt(ctx: Ctx, extraTerms: { q: string; tag?: string; gift
   }
   if (on("careers")) {
     const feeds = ctx.companies.filter((c: any) => c.feed_url && !c.blocked);
-    const res = await Promise.allSettled(feeds.map((c: any) => fetchCompanyFeed({ name: c.name, ats: c.ats, feed_url: c.feed_url })));
+    const res = await Promise.allSettled(feeds.map((c: any) => fetchCompanyFeed({ name: c.name, ats: c.ats, feed_url: c.feed_url, title_filter: c.title_filter })));
     res.forEach((r, i) => (r.status === "fulfilled" ? raw.push(...r.value.map((j) => ({ ...j, found_by: `careers:${feeds[i].name}` }))) : errors.push(`${feeds[i].name}: ${r.reason?.message ?? r.reason}`)));
     log(`Career pages: ${res.filter((r) => r.status === "fulfilled").length}/${feeds.length} feeds read`);
   }

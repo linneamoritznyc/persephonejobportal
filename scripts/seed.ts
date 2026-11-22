@@ -38,7 +38,7 @@ async function profile() {
     linkedin: p.linkedin, github: p.github, languages: p.languages, salary_min_sek: p.salary_min_sek,
     salary_max_sek: p.salary_max_sek, us_contract_floor_usd: null, start_date: p.start_date, summary: p.summary,
     prefers_big_company: true, portfolio_urls: p.portfolio_urls, salary_answer: p.salary_answer,
-    stability_answer: p.stability_answer, thread: p.thread, thread_professional: p.thread_professional,
+    stability_answer: p.stability_answer, salary_target_sek: p.salary_target_sek, salary_targets: p.salary_targets, thread: p.thread, thread_professional: p.thread_professional,
     recruiter_email: p.email, regions: p.regions, updated_at: new Date().toISOString(),
   }), "profile");
 }
@@ -99,6 +99,7 @@ async function skills() {
     evidence_fact_ids: P.FACTS.filter((f) => f.text.toLowerCase().includes(s.name.toLowerCase().split(" ")[0])).map((f) => f.id).slice(0, 5),
   }));
   must(await sb.from("ps_skills").upsert(rows, { onConflict: "name" }), "skills");
+  must(await sb.from("ps_skills").upsert(P.LEARNING_TARGETS.map((l) => ({ name: l.name, category: "learning target", level: 1, learning_target: true, gap_note: l.gap_note, role_families: ["5"] })), { onConflict: "name" }), "learning targets");
 }
 
 async function gifts() {
@@ -147,9 +148,9 @@ async function companies() {
   const rows = [
     ...P.COMPANIES.map((c) => ({
       name: c.name, size: c.size, is_big_company: c.big, ats: c.ats, feed_url: c.feed, careers_url: c.careers,
-      blocked: false, track: "stockholm", contact_name: (c as any).contact_name ?? null, contact_email: (c as any).contact_email ?? null,
+      blocked: false, track: "stockholm", contact_name: (c as any).contact_name ?? null, contact_email: (c as any).contact_email ?? null, title_filter: (c as any).title_filter ?? null,
     })),
-    ...BLOCKED_COMPANIES.map((n) => ({ name: n, size: null, is_big_company: false, ats: "other", feed_url: null, careers_url: null, blocked: true, track: "stockholm", contact_name: null, contact_email: null })),
+    ...BLOCKED_COMPANIES.map((n) => ({ name: n, size: null, is_big_company: false, ats: "other", feed_url: null, careers_url: null, blocked: true, track: "stockholm", contact_name: null, contact_email: null, title_filter: null })),
   ];
   must(await sb.from("ps_companies").upsert(rows, { onConflict: "name" }), "companies");
   must(await sb.from("ps_sources").upsert([
@@ -186,7 +187,7 @@ async function targets() {
     const external_id = `${t.company}:${t.title}`.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const job = must(await sb.from("ps_jobs").upsert({
       source: "target", external_id, company_id: c?.id ?? null, company_name: t.company, title: t.title,
-      url: c ? (P.COMPANIES.find((x) => x.name === t.company)?.careers ?? null) : null, location: "Stockholm",
+      url: t.url ?? (c ? (P.COMPANIES.find((x) => x.name === t.company)?.careers ?? null) : null), location: "Stockholm",
       remote: false, language: "en", status: t.status, wave: t.wave, family_id: String(t.fam),
       deadline: t.deadline ?? null, is_open: t.status !== "closed", employment_type: "Permanent, full-time",
       description: `${t.title} at ${t.company}, Stockholm. Target role from the 10-day plan (wave ${t.wave}).`,
@@ -269,6 +270,17 @@ async function cvs() {
       }), `cv ${code}`);
       console.log("cv", code, pdf.length, "bytes");
     }
+  }
+  {
+    const t = P.CV_TS_BUILDER;
+    const built = buildCv(5, "startup");
+    const proof = t.proof.map((id) => P.FACTS.find((f) => f.id === id)!.text);
+    const input = { ...built.input, leadLine: t.lead, summary: `Proof: ${proof.join(" ")}` };
+    if (findBannedTerm(JSON.stringify(input))) throw new Error("Banned term in CV 5T");
+    const pdf = await renderCv(input);
+    must(await sb.storage.from("cv").upload("branches/5T.pdf", Buffer.from(pdf), { upsert: true, contentType: "application/pdf" }), "upload 5T");
+    must(await sb.from("ps_cv_versions").upsert({ code: "5T", name: "T&S Builder (product roles, English)", lead_line: t.lead, summary: t.lead, fact_ids: [...t.proof, ...t.extra], skill_names: built.skills, role_families: ["5"], register: "startup", family: 5, base: "C", pdf_path: "cv/branches/5T.pdf", generated_at: new Date().toISOString(), frozen: true }), "cv 5T");
+    console.log("cv 5T", pdf.length, "bytes");
   }
   // English corporate PDFs for applications that lead with English.
   for (const fam of [1, 2, 3, 4, 5, 6]) {

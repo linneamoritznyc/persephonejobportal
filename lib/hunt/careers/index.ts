@@ -23,12 +23,20 @@ function stripHtml(html: string): string {
 const SWEDEN = /stockholm|sweden|sverige|remote|europe|emea|nordic/i;
 
 export interface CompanyFeed {
+  title_filter?: string | null;
   name: string;
   ats: string;
   feed_url: string;
 }
 
 export async function fetchCompanyFeed(c: CompanyFeed): Promise<RawJob[]> {
+  const jobs = await fetchCompanyFeedAll(c);
+  if (!c.title_filter) return jobs;
+  const re = new RegExp(c.title_filter, "i");
+  return jobs.filter((j) => re.test(j.title));
+}
+
+async function fetchCompanyFeedAll(c: CompanyFeed): Promise<RawJob[]> {
   const res = await fetch(c.feed_url, { headers: UA, cache: "no-store" });
   if (!res.ok) throw new Error(`${c.name}: HTTP ${res.status}`);
   const src = `company:${c.name}`;
@@ -71,6 +79,24 @@ export async function fetchCompanyFeed(c: CompanyFeed): Promise<RawJob[]> {
         raw: { team: j.categories?.team, commitment: j.categories?.commitment },
       }))
       .filter((j: any) => /full-time/i.test(j.employment_type) && !NON_PERMANENT.test(j.title));
+  }
+  if (c.ats === "smartrecruiters") {
+    const data = await res.json();
+    return (data.content ?? [])
+      .filter((j: any) => SWEDEN.test(`${j.location?.city ?? ""} ${j.location?.country ?? ""} ${j.location?.remote ? "remote" : ""}`))
+      .map((j: any) => ({
+        source: src,
+        external_id: String(j.id),
+        title: j.name,
+        company_name: c.name,
+        url: `https://jobs.smartrecruiters.com/${j.company?.identifier ?? c.name}/${j.id}`,
+        location: [j.location?.city, j.location?.country].filter(Boolean).join(", "),
+        remote: !!j.location?.remote,
+        language: "en",
+        description: `${j.name}. ${j.function?.label ?? ""} ${j.department?.label ?? ""}`.trim(),
+        employment_type: /full/i.test(j.typeOfEmployment?.label ?? "") ? "Permanent, full-time" : String(j.typeOfEmployment?.label ?? "Unknown"),
+      }))
+      .filter((j: any) => j.employment_type.startsWith("Permanent") && !NON_PERMANENT.test(j.title));
   }
   if (c.ats === "greenhouse") {
     const data = await res.json();
