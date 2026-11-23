@@ -30,5 +30,5 @@ export async function runDiscovery(ctx: Ctx) {
   const discovered = results.filter((r) => !r.seed && (r.overlap ?? 0) >= 40).sort((a, b) => b.pagerank * (b.overlap ?? 0) - a.pagerank * (a.overlap ?? 0)).slice(0, 25);
   const hits = EXPECTED.filter((e) => discovered.some((d) => d.id === e));
   const terms = discovered.flatMap((d) => [d.name, ...d.alt.slice(0, 2)].map((q: string) => ({ q, tag: `discovery:${d.id}`, gift: d.gift })));
-  return { converged: delta < 1e-4, delta, discovered, expectedHits: hits, terms };
+  return { converged: delta < 1e-3, delta, discovered, expectedHits: hits, terms };
 }

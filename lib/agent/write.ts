@@ -135,19 +135,21 @@ export async function writeApplication(ctx: Ctx, job: any, match: { primary_gift
 
   const template = ctx.rules.find((r) => r.kind === "template" && r.name === "linkedin_hiring_team")?.rule ?? "";
   const linkedin = await writeChecked(
-    () =>
-      ask({
+    async () => {
+      const t = await ask({
         model: SONNET,
         cached: ctx.master,
         meter,
         maxTokens: 300,
-        system: `Write a LinkedIn note to someone on the hiring team, under 80 words, one link, one ask (a question about their team). One sentence of evidence for the primary strength. Use {name} as the placeholder for their first name. Base it on this template, adapted to the role:\n${template}\nUse this link: ${ctx.profile?.loom_url || portfolio}. No em dashes.`,
+        system: `Write a LinkedIn note to someone on the hiring team, 50 to 70 words (hard limit 80), one link, one ask (a question about their team). One sentence of evidence for the primary strength. Use {name} as the placeholder for their first name. Base it on this template, adapted to the role:\n${template}\nUse this link: ${ctx.profile?.loom_url || portfolio}. No em dashes.`,
         prompt: brief,
-      }),
+      });
+      const words = t.trim().split(/\s+/).length;
+      if (words > 80) throw new GuardRejection("linkedin note", `${words} words`);
+      return t;
+    },
     "linkedin note"
   );
-  const words = linkedin.split(/\s+/).length;
-  if (words > 80) throw new GuardRejection("linkedin note", `${words} words`);
 
   return { letter: letterClean, email, subject: `${job.title} - Linnea Moritz`, linkedin, factIds, cv, portfolio };
 }

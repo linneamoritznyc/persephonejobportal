@@ -20,7 +20,7 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-const SWEDEN = /stockholm|sweden|sverige|remote|europe|emea|nordic/i;
+const SWEDEN = /stockholm|sweden|sverige|solna|sundbyberg|nacka/i;
 
 export interface CompanyFeed {
   title_filter?: string | null;

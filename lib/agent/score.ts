@@ -20,7 +20,11 @@ export async function scoreAndStore(ctx: Ctx, job: any, u: Understanding) {
     rows.push({ job_id: job.id, skill_name: s.name.slice(0, 120), importance: s.importance, years_required: s.years ?? null, extracted_by: "claude-haiku" });
   }
   await ctx.sb.from("ps_job_skills").delete().eq("job_id", job.id);
-  if (rows.length) await ctx.sb.from("ps_job_skills").upsert(rows, { onConflict: "job_id,skill_name" });
+  const uniq = rows.filter((r, i) => rows.findIndex((x) => x.skill_name.toLowerCase() === r.skill_name.toLowerCase()) === i);
+  if (uniq.length) {
+    const { error } = await ctx.sb.from("ps_job_skills").upsert(uniq, { onConflict: "job_id,skill_name" });
+    if (error) throw new Error(`job skills: ${error.message}`);
+  }
 
   const fit = calculateFitScore(mine, jobMap);
   const v = scoreJobVetlanda(mine, labels, `${job.title} ${job.description ?? ""}`);
@@ -39,15 +43,16 @@ export async function scoreAndStore(ctx: Ctx, job: any, u: Understanding) {
     salary_estimate_max: job.salary_max ?? band.high, gift_read: gr ?? null, primary_gift: gr?.primary_gift ?? null,
     updated_at: new Date().toISOString(),
   };
-  await ctx.sb.from("ps_matches").upsert(
+  const { error } = await ctx.sb.from("ps_matches").upsert(
     [
-      { ...common, method: "vetlandajobb_v1", score: v.score, matched: v.matched.map(pretty), missing_required: v.missing.map(pretty), rank_score: rank, tier: tierFor(v.score), why: `${v.matched.length} of ${v.matched.length + v.missing.length} listed skills.` },
+      { ...common, method: "vetlandajobb_v1", score: v.score, ci_low: null, ci_high: null, matched: v.matched.map(pretty), missing_required: v.missing.map(pretty), missing_preferred: [], rank_score: rank, tier: tierFor(v.score), why: `${v.matched.length} of ${v.matched.length + v.missing.length} listed skills.` },
       ...(fit
         ? [{ ...common, method: "crosstrees_v1", score: fit.score, ci_low: fit.ci_low, ci_high: fit.ci_high, matched: fit.matched.map(pretty), missing_required: fit.missing_required.map(pretty), missing_preferred: fit.missing_preferred.map(pretty), rank_score: rank, tier: tierFor(fit.score), why }]
         : []),
     ],
     { onConflict: "job_id,method" }
   );
+  if (error) throw new Error(`matches: ${error.message}`);
   if (family && !job.family_id) await ctx.sb.from("ps_jobs").update({ family_id: family }).eq("id", job.id);
   return { vetlanda: v.score, crosstrees: fit?.score ?? null, ci_low: fit?.ci_low ?? null, rank, primary_gift: gr?.primary_gift ?? null, family };
 }
