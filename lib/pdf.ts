@@ -3,7 +3,7 @@
  * versions and per-application cover letters. Standard fonts only support
  * WinAnsi, so text is sanitised first (Swedish letters survive).
  */
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { PDFDocument, PDFString, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 
 const INK = rgb(0.07, 0.08, 0.13);
 const MUTED = rgb(0.38, 0.41, 0.5);
@@ -67,6 +67,33 @@ class Writer {
     }
     this.y -= o.gap ?? 0;
   }
+  /** One line of "a  |  b  |  c" parts; URLs and emails become clickable links. */
+  contactLine(t: string, size = 8.5) {
+    const font = this.fonts.sans;
+    const parts = winAnsi(t).split("  |  ");
+    this.ensure(size * 1.6);
+    let x = this.margin;
+    const y = this.y - size;
+    parts.forEach((part, i) => {
+      if (i > 0) {
+        this.page.drawText("  |  ", { x, y, size, font, color: MUTED });
+        x += font.widthOfTextAtSize("  |  ", size);
+      }
+      const p = part.trim();
+      const href = /@/.test(p) && !/\s/.test(p) ? `mailto:${p}` : /^(https?:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(p) ? (p.startsWith("http") ? p : `https://${p}`) : null;
+      const w = font.widthOfTextAtSize(p, size);
+      this.page.drawText(p, { x, y, size, font, color: href ? ACCENT : MUTED });
+      if (href) {
+        this.page.drawLine({ start: { x, y: y - 1.2 }, end: { x: x + w, y: y - 1.2 }, thickness: 0.4, color: ACCENT });
+        const annot = this.doc.context.register(
+          this.doc.context.obj({ Type: "Annot", Subtype: "Link", Rect: [x, y - 2, x + w, y + size], Border: [0, 0, 0], A: { Type: "Action", S: "URI", URI: PDFString.of(href) } })
+        );
+        this.page.node.addAnnot(annot);
+      }
+      x += w;
+    });
+    this.y -= size * 1.38;
+  }
   rule() {
     this.ensure(10);
     this.page.drawLine({
@@ -115,7 +142,8 @@ export async function renderCv(cv: CvInput): Promise<Uint8Array> {
   const w = new Writer(doc, fonts);
   w.text(cv.name, { font: fonts.serifBold, size: 24, gap: 2 });
   w.text(cv.leadLine, { font: fonts.serif, size: 12.5, color: ACCENT, gap: 2 });
-  w.text(cv.contact, { size: 8.5, color: MUTED, gap: 4 });
+  w.contactLine(cv.contact);
+  w.y -= 4;
   w.text(cv.summary, { size: 9.5, gap: 2 });
 
   const L = cv.labels ?? { experience: "Experience", skills: "Skills", education: "Education", languages: "Languages", also: "Projects and more" };
@@ -153,7 +181,8 @@ export async function renderLetter(opts: {
   doc.setAuthor(opts.name);
   const w = new Writer(doc, fonts, 64);
   w.text(opts.name, { font: fonts.serifBold, size: 20, gap: 1 });
-  w.text(opts.contact, { size: 8.5, color: MUTED, gap: 2 });
+  w.contactLine(opts.contact);
+  w.y -= 2;
   w.rule();
   w.text(opts.date, { size: 9.5, color: MUTED, gap: 6 });
   w.text(`${opts.company}  |  ${opts.role}`, { font: fonts.sansBold, size: 10.5, gap: 10 });
