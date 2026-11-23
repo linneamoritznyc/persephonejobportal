@@ -121,6 +121,8 @@ async function stories() {
     };
   });
   const ins = must(await sb.from("ps_stories").insert(rows).select("id,gift_id"), "stories") as { id: string; gift_id: string }[];
+  must(await sb.from("ps_stories").delete().contains("tags", ["internal"]), "clear internal");
+  must(await sb.from("ps_stories").insert(P.INTERNAL_PREP.map((x) => ({ title: x.title, notes: x.notes, tags: ["internal"], fact_ids: [] }))), "internal prep");
   for (const g of P.GIFTS) {
     const ids = ins.filter((r) => r.gift_id === g.id).map((r) => r.id);
     await sb.from("ps_gifts").update({ story_ids: ids }).eq("id", g.id);
