@@ -12,7 +12,7 @@ export default async function Today() {
   const in3 = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
   const [plan, deadlines, top, pipeline, gifts, weekly, draftsWaiting] = await Promise.all([
     sb.from("ps_events").select("title,due_date,detail").eq("kind", "plan").order("due_date"),
-    sb.from("ps_v_jobs").select("id,title,company_name,deadline").eq("is_open", true).gte("deadline", today).lte("deadline", in3).order("deadline"),
+    sb.from("ps_matches").select("rank_score,ps_jobs!inner(id,title,company_name,deadline,is_open,blocked_reason)").eq("method", "crosstrees_v1").gte("rank_score", 55).eq("ps_jobs.is_open", true).is("ps_jobs.blocked_reason", null).gte("ps_jobs.deadline", today).lte("ps_jobs.deadline", in3),
     sb.from("ps_matches").select("score,ci_low,ci_high,rank_score,why,primary_gift,salary_estimate_min,salary_estimate_max,family_id,ps_jobs!inner(id,title,company_name,location,employment_type,deadline,is_open,blocked_reason,status)").eq("method", "crosstrees_v1").eq("ps_jobs.is_open", true).is("ps_jobs.blocked_reason", null).neq("ps_jobs.status", "closed").order("rank_score", { ascending: false }).limit(5),
     sb.from("ps_applications").select("status"),
     sb.from("ps_gifts").select("id,name,professional_language").order("sort"),
@@ -55,11 +55,11 @@ export default async function Today() {
         ) : null}
       </header>
 
-      {deadlines.data?.length ? (
+      {(deadlines.data ?? []).length ? (
         <section className="card border-pom/60 p-4 md:p-5">
-          <h2 className="display text-2xl text-[#ff8a9b]">Closing within 3 days</h2>
+          <h2 className="display text-2xl text-pom">Closing within 3 days</h2>
           <ul className="mt-3 divide-y divide-line">
-            {deadlines.data.map((j: any) => (
+            {(deadlines.data ?? []).map((d: any) => d.ps_jobs).sort((a: any, b: any) => a.deadline.localeCompare(b.deadline)).map((j: any) => (
               <li key={j.id} className="flex items-center gap-3 py-2.5">
                 <Link href={`/app/jobs/${j.id}`} className="hover:underline">{j.company_name}, {j.title}</Link>
                 <span className="ml-auto chip chip-pom num">{days(j.deadline)} days</span>

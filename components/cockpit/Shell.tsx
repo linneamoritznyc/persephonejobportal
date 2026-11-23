@@ -24,31 +24,32 @@ export default function Shell({ children, banner }: { children: React.ReactNode;
   const active = (h: string) => (h === "/app" ? path === "/app" : path.startsWith(h));
   return (
     <div className="min-h-dvh">
-      <aside className="hidden md:flex fixed inset-y-0 left-0 w-60 flex-col border-r border-line bg-surface/60 px-4 py-6">
-        <Link href="/app" className="display text-2xl text-ink px-3">Persephone</Link>
-        <p className="px-3 text-xs text-muted mt-1">Two worlds: tech and art</p>
+      <aside className="sidebar hidden md:flex fixed inset-y-0 left-0 w-60 flex-col px-4 py-6">
+        <Link href="/app" className="px-3 font-mono text-lg tracking-tight text-white">persephone</Link>
+        <p className="px-3 text-xs mt-1 text-white/70">Job search without anxiety</p>
         <nav className="mt-8 flex flex-col gap-1">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${active(n.href) ? "bg-raised text-ink" : "text-muted hover:text-ink"}`}>
+            <Link key={n.href} href={n.href} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${active(n.href) ? "active" : ""}`}>
               <Icon d={n.icon} />
               <span>{n.label}</span>
-              <span className="ml-auto text-[11px] text-muted/70">{n.sub}</span>
+              <span className="ml-auto text-[11px] opacity-60">{n.sub}</span>
             </Link>
           ))}
         </nav>
-        <div className="mt-auto px-3 text-xs text-muted space-y-2">
-          <a href="/" className="block hover:text-ink">Public portfolio</a>
-          <form action="/auth/signout" method="post"><button className="hover:text-ink">Sign out</button></form>
+        <div className="mt-auto px-3 text-xs space-y-2">
+          <a href="/" className="block">Public portfolio</a>
+          <form action="/auth/signout" method="post"><button>Sign out</button></form>
         </div>
       </aside>
       <main className="md:pl-60 pb-24 md:pb-10">
         {banner}
+        <div className="md:hidden flex items-center justify-between px-4 pt-4 text-white"><Link href="/app" className="font-mono">persephone</Link><a href="/" className="text-xs text-white/80">Portfolio</a></div>
         <div className="mx-auto max-w-6xl px-4 md:px-8 py-6 md:py-10">{children}</div>
       </main>
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-line bg-night/95 backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-line bg-white/95 backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         <div className="grid grid-cols-5">
           {NAV.slice(0, 5).map((n) => (
-            <Link key={n.href} href={n.href} className={`flex flex-col items-center gap-1 py-2.5 text-[11px] ${active(n.href) ? "text-pom" : "text-muted"}`}>
+            <Link key={n.href} href={n.href} className={`flex flex-col items-center gap-1 py-2.5 text-[11px] ${active(n.href) ? "text-ultra font-semibold" : "text-muted"}`}>
               <Icon d={n.icon} />
               {n.label}
             </Link>

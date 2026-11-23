@@ -7,7 +7,9 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   return (
     <main className="login">
       <div style={{ width: "min(420px,100%)" }}>
-        <h1 className="name" style={{ fontSize: "clamp(48px,9vw,72px)", marginBottom: 24 }}>Linnea Moritz</h1>
+        <span className="brand">persephone</span>
+        <h1>Job search without anxiety.</h1>
+        <p className="sub">Sign in, Linnea. Your matches, letters and drafts are waiting.</p>
         <LoginForm error={e} />
         <p className="msg" style={{ marginTop: 24 }}><a href="/">Back to the portfolio</a></p>
       </div>

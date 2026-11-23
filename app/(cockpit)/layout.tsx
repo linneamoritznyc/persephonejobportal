@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   icons: { apple: "/icons/180", icon: "/icons/192" },
 };
 
-export const viewport: Viewport = { themeColor: "#0B0E1A", width: "device-width", initialScale: 1, viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#4f46e5", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function CockpitRoot({ children }: { children: React.ReactNode }) {
   return (

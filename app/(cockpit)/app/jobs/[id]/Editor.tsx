@@ -71,7 +71,7 @@ export default function Editor({ jobId, app, drafts, cvs, facts }: { jobId: stri
         onBlur={() => draft && start(async () => { const r = await saveDraftText(draft.id, text); if (!r.ok) say(r.error, (r as any).sentence); })}
       />
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className={`num ${kind === "linkedin_note" && words > 80 ? "text-[#ff8a9b]" : "text-muted"}`}>{words} words{kind === "linkedin_note" ? " / 80" : ""}</span>
+        <span className={`num ${kind === "linkedin_note" && words > 80 ? "text-pom" : "text-muted"}`}>{words} words{kind === "linkedin_note" ? " / 80" : ""}</span>
         <button className="btn btn-ghost" onClick={() => navigator.clipboard.writeText(text).then(() => say("Copied."))}>Copy</button>
         {(["shorter", "confident", "swedish", "english"] as const).map((m) => (
           <button key={m} className="btn btn-ghost" disabled={pending || !draft} onClick={() => start(async () => { const r = await rewriteDraft(draft.id, m); r.ok ? setTexts((t) => ({ ...t, [kind]: r.body })) : say(r.error); })}>
@@ -99,7 +99,7 @@ export default function Editor({ jobId, app, drafts, cvs, facts }: { jobId: stri
       {facts.length ? (
         <details className="text-xs text-muted">
           <summary className="cursor-pointer">Cited facts ({facts.length})</summary>
-          <ul className="mt-2 space-y-1">{facts.map((f) => <li key={f.id}><b className="text-silver">{f.id}</b> {f.text}</li>)}</ul>
+          <ul className="mt-2 space-y-1">{facts.map((f) => <li key={f.id}><b className="text-ultra">{f.id}</b> {f.text}</li>)}</ul>
         </details>
       ) : null}
 
@@ -119,7 +119,7 @@ export default function Editor({ jobId, app, drafts, cvs, facts }: { jobId: stri
       {toast ? (
         <div role="status" className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 card px-4 py-3 text-sm shadow-xl z-30 max-w-md">
           <p>{toast.msg} {toast.link ? <a className="underline text-gold" href={toast.link} target="_blank" rel="noreferrer">Open Gmail</a> : null}</p>
-          {toast.bad ? <p className="mt-1 text-[#ff8a9b]">“{toast.bad}”</p> : null}
+          {toast.bad ? <p className="mt-1 text-pom">“{toast.bad}”</p> : null}
         </div>
       ) : null}
     </div>

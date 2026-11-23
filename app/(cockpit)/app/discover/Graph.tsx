@@ -20,7 +20,7 @@ export default function Graph({ nodes, edges, jobs, gifts }: { nodes: any[]; edg
     const radius = (n: any) => (n.is_seed ? 9 : 6 + 22 * Math.sqrt((n.pagerank ?? 0) / maxPr)) * devicePixelRatio;
     const color = (n: any) => {
       if (byGift) return GIFT_COLORS[n.gift_id] ?? "#2A3352";
-      if (n.is_seed) return "#EEF1F8";
+      if (n.is_seed) return "#4f46e5";
       const o = n.overlap ?? 0;
       return o >= 70 ? "#4FB38A" : o >= 40 ? "#D9B26A" : "#E0A458";
     };
@@ -60,12 +60,12 @@ export default function Graph({ nodes, edges, jobs, gifts }: { nodes: any[]; edg
         const p = P.get(n.id)!;
         if (n.is_seed) { ctx.strokeStyle = "rgba(194,54,75,.35)"; ctx.lineWidth = devicePixelRatio; ctx.beginPath(); ctx.moveTo(me.x, me.y); ctx.lineTo(p.x, p.y); ctx.stroke(); }
       }
-      ctx.fillStyle = "#C2364B"; ctx.beginPath(); ctx.arc(me.x, me.y, 14 * devicePixelRatio, 0, 7); ctx.fill();
-      ctx.fillStyle = "#EEF1F8"; ctx.font = `${12 * devicePixelRatio}px Inter, sans-serif`; ctx.textAlign = "center"; ctx.fillText("Linnea", me.x, me.y + 30 * devicePixelRatio);
+      ctx.fillStyle = "#db2777"; ctx.beginPath(); ctx.arc(me.x, me.y, 14 * devicePixelRatio, 0, 7); ctx.fill();
+      ctx.fillStyle = "#1e1b4b"; ctx.font = `${12 * devicePixelRatio}px Inter, sans-serif`; ctx.textAlign = "center"; ctx.fillText("Linnea", me.x, me.y + 30 * devicePixelRatio);
       for (const n of nodes) {
         const p = P.get(n.id)!;
         ctx.fillStyle = color(n); ctx.beginPath(); ctx.arc(p.x, p.y, radius(n), 0, 7); ctx.fill();
-        ctx.fillStyle = "#9AA4C0"; ctx.font = `${11 * devicePixelRatio}px Inter, sans-serif`; ctx.fillText(n.name, p.x, p.y + radius(n) + 13 * devicePixelRatio);
+        ctx.fillStyle = "#6b6890"; ctx.font = `${11 * devicePixelRatio}px Inter, sans-serif`; ctx.fillText(n.name, p.x, p.y + radius(n) + 13 * devicePixelRatio);
       }
       if (frame++ < 400) raf = requestAnimationFrame(tick);
     };

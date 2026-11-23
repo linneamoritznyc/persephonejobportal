@@ -15,7 +15,7 @@ export default function LoginForm({ error }: { error?: string }) {
       }}
     >
       <label htmlFor="email" className="msg">Email</label>
-      <input id="email" name="email" type="email" required autoComplete="email" placeholder="you@example.com" />
+      <input id="email" name="email" type="email" required autoComplete="email" placeholder="linneamoritzcv@gmail.com" />
       <button type="submit" disabled={busy}>{busy ? "Sending..." : "Send magic link"}</button>
       {state.msg ? <p className="msg" role="status">{state.msg}</p> : null}
     </form>

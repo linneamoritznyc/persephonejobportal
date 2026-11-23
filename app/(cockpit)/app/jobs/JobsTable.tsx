@@ -16,6 +16,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
   const [source, setSource] = useState("");
   const [gift, setGift] = useState(initialGift);
   const [min, setMin] = useState(0);
+  const [matchesOnly, setMatchesOnly] = useState(true);
   const [soon, setSoon] = useState(false);
   const [sort, setSort] = useState<"score" | "deadline" | "newest">("score");
   const [sel, setSel] = useState<Set<string>>(new Set());
@@ -40,6 +41,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
       if (source === "discovery" && !String(j.found_by_term ?? "").startsWith("discovery:")) return false;
       if (source === "targets" && j.source !== "target") return false;
       if (min && (j.score ?? 0) < min) return false;
+      if (matchesOnly && j.source !== "target" && (j.rank ?? 0) < 55) return false;
       if (soon) {
         const d = days(j.deadline);
         if (d == null || d > 7) return false;
@@ -49,7 +51,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
     return r.sort((a, b) =>
       sort === "deadline" ? String(a.deadline ?? "9999").localeCompare(String(b.deadline ?? "9999")) : sort === "newest" ? String(b.first_seen_at).localeCompare(String(a.first_seen_at)) : (b.rank ?? -1) - (a.rank ?? -1)
     );
-  }, [rows, q, fam, wave, status, gift, source, min, soon, sort]);
+  }, [rows, q, fam, wave, status, gift, source, min, soon, sort, matchesOnly]);
 
   const toggle = (id: string) => setSel((s) => {
     const n = new Set(s);
@@ -75,6 +77,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
         <select className="field w-auto" value={status} onChange={(e) => setStatus(e.target.value)}><option value="">Any status</option>{["open", "check", "rolling", "deadline", "shortlisted", "drafted", "sent"].map((s) => <option key={s}>{s}</option>)}</select>
         <select className="field w-auto" value={gift} onChange={(e) => setGift(e.target.value)}><option value="">Any strength</option>{Object.entries(giftNames).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
         <label className="text-sm text-muted flex items-center gap-2">Min score <input type="number" className="field w-20" value={min} onChange={(e) => setMin(+e.target.value)} /></label>
+        <label className="text-sm text-muted flex items-center gap-2"><input type="checkbox" checked={matchesOnly} onChange={(e) => setMatchesOnly(e.target.checked)} /> Good matches only</label>
         <label className="text-sm text-muted flex items-center gap-2"><input type="checkbox" checked={soon} onChange={(e) => setSoon(e.target.checked)} /> Closing in 7 days</label>
         <select className="field w-auto ml-auto" value={sort} onChange={(e) => setSort(e.target.value as any)}><option value="score">Sort: score</option><option value="deadline">Sort: deadline</option><option value="newest">Sort: newest</option></select>
       </div>

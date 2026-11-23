@@ -91,8 +91,16 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
 
 footer a.signin{color:var(--mute);font-size:14px;text-decoration:none}
 footer a.signin:hover{color:var(--ink)}
-.login{min-height:100vh;display:grid;place-items:center;padding:24px}
-.login form{width:min(420px,100%);display:grid;gap:14px}
-.login input{font:16px var(--font-inter),Inter,sans-serif;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
-.login button{font:500 16px var(--font-inter),Inter,sans-serif;padding:14px 18px;border-radius:999px;border:0;background:var(--red);color:#fff;cursor:pointer;min-height:48px}
-.login .msg{color:var(--mute);font-size:15px}
+.login{min-height:100vh;display:grid;place-items:center;padding:24px;color:#fff;background:linear-gradient(135deg,#4f46e5 0%,#9333ea 55%,#db2777 100%)}
+.login .brand{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;opacity:.9}
+.login h1{font-family:var(--font-inter),Inter,sans-serif;font-weight:800;letter-spacing:-.03em;font-size:clamp(40px,8vw,60px);line-height:1.02;margin:14px 0 10px}
+.login p.sub{color:rgba(255,255,255,.85);font-size:17px;margin-bottom:26px}
+.login form{width:min(420px,100%);display:grid;gap:12px}
+.login label{color:rgba(255,255,255,.85);font-size:14px}
+.login input{font:16px var(--font-inter),Inter,sans-serif;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff}
+.login input::placeholder{color:rgba(255,255,255,.6)}
+.login input:focus{outline:2px solid #fff;outline-offset:1px}
+.login button{font:600 16px var(--font-inter),Inter,sans-serif;padding:14px 18px;border-radius:12px;border:0;background:#fff;color:#4338ca;cursor:pointer;min-height:50px}
+.login button:hover{background:#eef2ff}
+.login .msg{color:rgba(255,255,255,.9);font-size:15px}
+.login a{color:#fff}

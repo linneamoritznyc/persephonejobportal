@@ -90,7 +90,7 @@ function Cards({ exps, gifts, onSave }: { exps: any[]; gifts: any[]; onSave: (id
             <textarea className="field mt-1 min-h-16" value={cur[k] ?? ""} onChange={(ev) => setDraft((d: any) => ({ ...d, [k]: ev.target.value }))} />
           </label>
         ))}
-        <p className={`text-sm ${live.banned || live.lint.length ? "text-[#ff8a9b]" : "text-green"}`}>{live.banned ? "Banned term found. Saving is blocked." : live.lint.length ? `Style: ${live.lint.join(", ")}` : "Guard: clean"}</p>
+        <p className={`text-sm ${live.banned || live.lint.length ? "text-pom" : "text-green"}`}>{live.banned ? "Banned term found. Saving is blocked." : live.lint.length ? `Style: ${live.lint.join(", ")}` : "Guard: clean"}</p>
         <button className="btn btn-primary" disabled={!!live.banned} onClick={() => onSave(e.id, { card_title: cur.card_title, saw: cur.saw, built: cur.built, reached: cur.reached })}>Save card</button>
       </div>
       <div className="space-y-3">

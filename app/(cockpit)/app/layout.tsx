@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
   const banner = draftsConfigured() ? null : (
-    <div className="border-b border-pom/40 bg-pom/15 px-4 py-2.5 text-center text-sm text-ink">Add GMAIL_DRAFTS_APP_PASSWORD in Vercel to turn on drafts</div>
+    <div className="bg-white/95 px-4 py-2.5 text-center text-sm text-ink font-medium">Add GMAIL_DRAFTS_APP_PASSWORD in Vercel to turn on drafts</div>
   );
   return <Shell banner={banner}>{children}</Shell>;
 }
