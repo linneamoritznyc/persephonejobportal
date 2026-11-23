@@ -17,7 +17,7 @@ export interface PortfolioData {
 function fallback(): PortfolioData {
   return {
     cards: PORTFOLIO_CARDS.map((c) => ({ key: c.key, f: c.filter, kind: c.kind, t: c.title, saw: c.saw, built: c.built, reached: c.reached, tags: c.tags, url: (c as any).url ?? null, seed: c.seed, gifts: c.gifts, order: c.order })),
-    stats: [["28,224", "high-intent users found that ads never learned from"], ["11", "production web apps shipped in 2 months"], ["2,000+", "applicants guided in 40+ countries"], ["39", "art exhibitions in 21 cities"]],
+    stats: [["1,340", "workers found who could retrain into a shortage job"], ["11", "production web apps shipped in 2 months"], ["2,000+", "applicants guided in 40+ countries"], ["39", "art exhibitions in 21 cities"]],
     people: [["2,000+", "applicants guided one by one, in 40+ countries"], ["196", "Nordic schools in my outreach CRM"], ["45", "students mentored through capstone projects"], ["120,000 kr", "raised at 15 for women's education in Ethiopia"]],
     time: [],
   };

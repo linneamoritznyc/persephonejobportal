@@ -36,6 +36,8 @@ export async function loadCtx(sb: SupabaseClient): Promise<Ctx> {
     "MASTER PROFILE (the only facts you may use; cite fact ids in square brackets when you use them)",
     `Name: ${profile.data?.name}. Location: Stockholm. Languages: English and Swedish, both native; Mandarin HSK 3.`,
     `Current role: Soil Food Web Foundation, Contractor, Digital, Content and Grants, Sep 2026 to present.`,
+    `Availability: moving to Stockholm, can start in January 2027. Never write "immediately".`,
+    `Never claim: mentoring engineers, managing people, team sizes, daily usage by a team, revenue or money amounts, or any client work for her own projects.`,
     `Thread (outgoing version): ${profile.data?.thread_professional}`,
     "",
     "FACTS:",

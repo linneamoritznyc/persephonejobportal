@@ -8,7 +8,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import * as P from "../lib/seed/profile";
 import { embed, toPgVector } from "../lib/embed";
 import { findBannedTerm, lintStyle, tidy, BLOCKED_COMPANIES } from "../lib/guard";
-import { buildCv, branchCode, REGISTERS } from "../lib/cv";
+import { buildCv, branchCode, VARIANTS, TAGLINE_EN } from "../lib/cv";
 import { renderCv } from "../lib/pdf";
 import { calculateFitScore, type Importance } from "../lib/score/crosstrees";
 import { normalizeSkill } from "../lib/match";
@@ -71,7 +71,7 @@ async function experiencesAndFacts() {
   must(await sb.from("ps_facts").upsert(rows), "facts");
   // Portfolio stats, people band and timeline as editable facts.
   const pf = [
-    { id: "P-STAT-1", text: "28,224|high-intent users found that ads never learned from", tags: ["portfolio", "stat"] },
+    { id: "P-STAT-1", text: "1,340|workers found who could retrain into a shortage job", tags: ["portfolio", "stat"] },
     { id: "P-STAT-2", text: "11|production web apps shipped in 2 months", tags: ["portfolio", "stat"] },
     { id: "P-STAT-3", text: "2,000+|applicants guided in 40+ countries", tags: ["portfolio", "stat"] },
     { id: "P-STAT-4", text: "39|art exhibitions in 21 cities", tags: ["portfolio", "stat"] },
@@ -234,41 +234,40 @@ async function translateSv(texts: string[]): Promise<string[]> {
 }
 
 async function cvs() {
-  const rows: any[] = [];
-  for (const base of P.CV_BASES) {
-    rows.push({ code: base.code, name: base.name, lead_line: base.lead, fact_ids: base.proof, role_families: base.fams.map(String), register: "master", base: base.code, frozen: true });
-  }
+  const rows: any[] = P.CV_BASES.map((base) => ({ code: base.code, name: base.name, lead_line: TAGLINE_EN, fact_ids: base.proof, role_families: base.fams.map(String), register: "master", base: base.code, frozen: true }));
   must(await sb.from("ps_cv_versions").upsert(rows), "cv bases");
+  await sb.from("ps_cv_versions").delete().in("code", ["1C-en", "2C-en", "3C-en", "4C-en", "5C-en", "6C-en"]);
+  const names: Record<string, string> = { "se-en": "Sweden format, English", "se-sv": "Sweden format, Swedish", us: "US format" };
   for (const fam of [1, 2, 3, 4, 5, 6]) {
-    for (const reg of REGISTERS) {
-      const code = branchCode(fam, reg);
-      const built = buildCv(fam, reg);
+    for (const v of VARIANTS) {
+      const code = branchCode(fam, v);
+      const built = buildCv(fam, v);
       let input = built.input;
-      if (reg === "corporate") {
-        const flat = [input.summary, ...input.experiences.flatMap((e) => [e.title, e.dates, ...(e.bullets)]), ...input.education, ...input.extras];
+      if (v === "se-sv") {
+        const flat = [input.summary, ...input.experiences.flatMap((e) => [e.title, ...e.bullets.map((b) => (b.startsWith("§") ? b.slice(1) : b))]), ...input.education, ...(input.projects ?? []), ...input.extras, ...(input.skillGroups ?? [])];
         const sv = await translateSv(flat);
         let i = 0;
         input = {
           ...input,
           summary: sv[i++],
-          experiences: input.experiences.map((e) => ({ ...e, title: sv[i++], dates: sv[i++], bullets: e.bullets.map(() => sv[i++]) })),
+          experiences: input.experiences.map((e) => ({ ...e, title: sv[i++], bullets: e.bullets.map((b) => (b.startsWith("§") ? "§" + sv[i++] : sv[i++])) })),
           education: input.education.map(() => sv[i++]),
+          projects: (input.projects ?? []).map(() => sv[i++]),
           extras: input.extras.map(() => sv[i++]),
-          languages: "Svenska (modersmål), engelska (modersmål), mandarin (HSK 3)",
-          labels: { experience: "Erfarenhet", skills: "Kompetenser", education: "Utbildning", languages: "Språk", also: "Projekt och mer" },
+          skillGroups: (input.skillGroups ?? []).map(() => sv[i++]),
+          summaryLabel: "Profil",
+          labels: { experience: "Arbetslivserfarenhet", skills: "Kompetenser", education: "Utbildning", languages: "Språk", also: "Övrigt", projects: "Egna projekt" },
         };
       }
-      const all = JSON.stringify(input);
-      const banned = findBannedTerm(all);
+      const banned = findBannedTerm(JSON.stringify(input));
       if (banned) throw new Error(`Banned term in CV ${code}`);
       const pdf = await renderCv(input);
       const path = `branches/${code}.pdf`;
       must(await sb.storage.from("cv").upload(path, Buffer.from(pdf), { upsert: true, contentType: "application/pdf" }), `upload ${code}`);
       const fam_ = P.ROLE_FAMILIES.find((f) => f.id === String(fam))!;
       must(await sb.from("ps_cv_versions").upsert({
-        code, name: `${fam_.name} (${reg === "startup" ? "startup, English" : "corporate, Swedish"})`,
-        lead_line: built.lead, summary: built.lead, fact_ids: built.factIds, skill_names: built.skills,
-        role_families: [String(fam)], register: reg, family: fam, base: P.CV_BRANCHES.find((b) => b.fam === fam)!.base,
+        code, name: `${fam_.name} (${names[v]})`, lead_line: built.lead, summary: input.summary, fact_ids: built.factIds, skill_names: built.skills,
+        role_families: [String(fam)], register: v, family: fam, base: P.CV_BRANCHES.find((b) => b.fam === fam)!.base,
         pdf_path: `cv/${path}`, generated_at: new Date().toISOString(), frozen: true,
       }), `cv ${code}`);
       console.log("cv", code, pdf.length, "bytes");
@@ -276,20 +275,13 @@ async function cvs() {
   }
   {
     const t = P.CV_TS_BUILDER;
-    const built = buildCv(5, "startup");
-    const proof = t.proof.map((id) => P.FACTS.find((f) => f.id === id)!.text);
-    const input = { ...built.input, leadLine: t.lead, summary: `Proof: ${proof.join(" ")}` };
+    const built = buildCv(5, "se-en");
+    const input = { ...built.input, summary: `${built.input.summary} ${t.lead}` };
     if (findBannedTerm(JSON.stringify(input))) throw new Error("Banned term in CV 5T");
     const pdf = await renderCv(input);
     must(await sb.storage.from("cv").upload("branches/5T.pdf", Buffer.from(pdf), { upsert: true, contentType: "application/pdf" }), "upload 5T");
-    must(await sb.from("ps_cv_versions").upsert({ code: "5T", name: "T&S Builder (product roles, English)", lead_line: t.lead, summary: t.lead, fact_ids: [...t.proof, ...t.extra], skill_names: built.skills, role_families: ["5"], register: "startup", family: 5, base: "C", pdf_path: "cv/branches/5T.pdf", generated_at: new Date().toISOString(), frozen: true }), "cv 5T");
+    must(await sb.from("ps_cv_versions").upsert({ code: "5T", name: "T&S Builder (Sweden format, English)", lead_line: built.lead, summary: input.summary, fact_ids: [...t.proof, ...t.extra], skill_names: built.skills, role_families: ["5"], register: "se-en", family: 5, base: "C", pdf_path: "cv/branches/5T.pdf", generated_at: new Date().toISOString(), frozen: true }), "cv 5T");
     console.log("cv 5T", pdf.length, "bytes");
-  }
-  // English corporate PDFs for applications that lead with English.
-  for (const fam of [1, 2, 3, 4, 5, 6]) {
-    const built = buildCv(fam, "corporate");
-    const pdf = await renderCv(built.input);
-    must(await sb.storage.from("cv").upload(`branches/${fam}C-en.pdf`, Buffer.from(pdf), { upsert: true, contentType: "application/pdf" }), "upload en corporate");
   }
   for (const f of P.ROLE_FAMILIES) await sb.from("ps_role_families").update({ cv_version: `${f.id}S` }).eq("id", f.id);
 }
@@ -413,7 +405,7 @@ async function local() {
   for (const f of LOCAL_FACTS) if (findBannedTerm(f.text)) throw new Error(f.id);
   must(await sb.from("ps_facts").upsert(LOCAL_FACTS.map((f) => ({ id: f.id, text: f.text, tags: ["local", ...f.tags], role_families: [], strength: 3, source_file: "cv-sv-2026-11-23", numbers: {}, embedding: toPgVector(embed(f.text)) }))), "local facts");
   const pdf = await renderCv({
-    name: "Linnea Moritz", leadLine: LOCAL_CV.lead, contact: "Vetlanda  |  linneamoritzcv@gmail.com", summary: "",
+    name: "Linnea Moritz", leadLine: LOCAL_CV.lead, contact: "Vetlanda  |  0761166109  |  linneamoritzcv@gmail.com", summary: "",
     experiences: LOCAL_CV.experiences, skills: LOCAL_CV.skills, education: LOCAL_CV.education, languages: LOCAL_CV.languages, extras: LOCAL_CV.extras,
     labels: { experience: "Arbetslivserfarenhet", skills: "Kompetenser", education: "Utbildning", languages: "Språk", also: "Ledarskap och engagemang" },
   });

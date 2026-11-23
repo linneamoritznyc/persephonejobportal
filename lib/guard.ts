@@ -78,6 +78,7 @@ export function lintStyle(text: string): string[] {
   if (/\bisn['’]t\b/i.test(text)) v.push("isn't");
   if (/\binstead of\b/i.test(text)) v.push("instead of");
   if (/\bnot\b[^.]{1,40},\s*but\b/i.test(text)) v.push("not X, but Y");
+  if (/,\s*not\s+(a|an|the|just|only|about|in|on)?\s*\w+/i.test(text)) v.push("contrast: , not X");
   if (/passionate about/i.test(text)) v.push("filler: passionate about");
   if (/\b(norwegian|danish|norska|danska|norsk|dansk)\b/i.test(text) && /\b(speak|speaks|fluent|language|languages|språk|talar|kunskaper i|professionell)\b/i.test(text)) v.push("claims Norwegian/Danish");
   return v;
@@ -91,6 +92,5 @@ export function tidy(text: string): string {
     .replace(/\*\*(.*?)\*\*/g, "$1")
     .replace(/^#+\s*/gm, "")
     .replace(/\.\s*\./g, ".")
-    .replace(/\. ([a-z])/g, (_m, c: string) => `. ${c.toUpperCase()}`)
     .trim();
 }

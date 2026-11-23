@@ -132,7 +132,11 @@ export interface CvInput {
   education: string[];
   languages: string;
   extras: string[];
-  labels?: { experience: string; skills: string; education: string; languages: string; also: string };
+  summaryLabel?: string;
+  skillGroups?: string[];
+  projects?: string[];
+  order?: ("experience" | "projects" | "education" | "languages" | "skills" | "also")[];
+  labels?: { experience: string; skills: string; education: string; languages: string; also: string; projects?: string };
 }
 
 export async function renderCv(cv: CvInput): Promise<Uint8Array> {
@@ -146,28 +150,50 @@ export async function renderCv(cv: CvInput): Promise<Uint8Array> {
   w.y -= 4;
   w.text(cv.summary, { size: 9.5, gap: 2 });
 
-  const L = cv.labels ?? { experience: "Experience", skills: "Skills", education: "Education", languages: "Languages", also: "Projects and more" };
-  w.heading(L.experience);
-  for (const e of cv.experiences) {
-    w.ensure(40);
-    w.text(`${e.title}, ${e.org}`, { font: fonts.sansBold, size: 10 });
-    w.text([e.dates, e.location].filter(Boolean).join("  |  "), { size: 8.5, color: MUTED, gap: 1 });
-    for (const b of e.bullets) {
-      if (b.startsWith("§")) w.text(b.slice(1), { font: fonts.sansBold, size: 9.2, indent: 4, color: MUTED });
-      else w.text(`•  ${b}`, { size: 9.2, indent: 8 });
-    }
-    w.y -= 4;
+  const L = { projects: "Projects", ...(cv.labels ?? { experience: "Experience", skills: "Skills", education: "Education", languages: "Languages", also: "Other" }) };
+  if (cv.summary) {
+    if (cv.summaryLabel) w.heading(cv.summaryLabel);
+    w.text(cv.summary, { size: 9.6, gap: 2 });
   }
-  w.heading(L.skills);
-  w.text(cv.skills.join("  ·  "), { size: 9.2 });
-  w.heading(L.education);
-  for (const e of cv.education) w.text(e, { size: 9.2 });
-  w.heading(L.languages);
-  w.text(cv.languages, { size: 9.2 });
-  if (cv.extras.length) {
-    w.heading(L.also);
-    for (const e of cv.extras) w.text(`•  ${e}`, { size: 9.2, indent: 8 });
-  }
+  const sections: Record<string, () => void> = {
+    experience: () => {
+      w.heading(L.experience);
+      for (const e of cv.experiences) {
+        w.ensure(40);
+        w.text(`${e.title}, ${e.org}`, { font: fonts.sansBold, size: 10 });
+        w.text([e.dates, e.location].filter(Boolean).join("  |  "), { size: 8.5, color: MUTED, gap: 1 });
+        for (const b of e.bullets) {
+          if (b.startsWith("§")) w.text(b.slice(1), { font: fonts.sansBold, size: 9.2, indent: 4, color: MUTED });
+          else w.text(`•  ${b}`, { size: 9.2, indent: 8 });
+        }
+        w.y -= 4;
+      }
+    },
+    projects: () => {
+      if (!cv.projects?.length) return;
+      w.heading(L.projects);
+      for (const p of cv.projects) w.text(`•  ${p}`, { size: 9.2, indent: 8 });
+    },
+    education: () => {
+      w.heading(L.education);
+      for (const e of cv.education) w.text(e, { size: 9.2, gap: 2 });
+    },
+    languages: () => {
+      w.heading(L.languages);
+      w.text(cv.languages, { size: 9.2 });
+    },
+    skills: () => {
+      w.heading(L.skills);
+      if (cv.skillGroups?.length) for (const g of cv.skillGroups) w.text(g, { size: 9.2 });
+      else w.text(cv.skills.join("  ·  "), { size: 9.2 });
+    },
+    also: () => {
+      if (!cv.extras.length) return;
+      w.heading(L.also);
+      for (const e of cv.extras) w.text(`•  ${e}`, { size: 9.2, indent: 8 });
+    },
+  };
+  for (const k of cv.order ?? ["experience", "projects", "skills", "education", "languages", "also"]) sections[k]();
   return doc.save();
 }
 

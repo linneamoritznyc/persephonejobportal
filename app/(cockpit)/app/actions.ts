@@ -149,7 +149,7 @@ export async function rewriteDraft(draftId: string, mode: "shorter" | "confident
 
 export async function setCv(applicationId: string, code: string): Promise<R> {
   await requireOwner();
-  if (!/^([1-6][SC]|5T|L)$/.test(code)) return { ok: false, error: "Unknown CV" };
+  if (!/^([1-6][SCU]|5T|L)$/.test(code)) return { ok: false, error: "Unknown CV" };
   await db().from("ps_applications").update({ cv_version: code }).eq("id", applicationId);
   await db().from("ps_drafts").update({ cv_code: code }).eq("application_id", applicationId);
   return { ok: true };
