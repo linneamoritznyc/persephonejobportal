@@ -7,7 +7,7 @@ The idea: one Next.js app, one Vercel project, one domain.
 - **The back room is private:** a small "Sign in" link in the portfolio footer leads to `/login`. Behind it sits my job cockpit, where I find jobs, read drafts, tailor them and track every application.
 
 All hard rules from 02 and 03 still apply:
-- never send email; drafts go only to linneajobs@gmail.com
+- never send email; drafts go only to linneacv@gmail.com
 - banned terms guard
 - Precis and gig platforms blocked
 - full-time permanent roles only
@@ -43,7 +43,7 @@ All hard rules from 02 and 03 still apply:
 
 - One screen: my name in Instrument Serif, one email field, one button "Send magic link". It uses the portfolio palette.
 - Supabase Auth magic link (email OTP). Disable sign-ups in the Supabase dashboard config.
-- **Allowlist:** the env var `COCKPIT_ALLOWED_EMAILS=linneajobs@gmail.com`. Middleware and every server action reject any other email, even with a valid session.
+- **Allowlist:** the env var `COCKPIT_ALLOWED_EMAILS=linneacv@gmail.com`. Middleware and every server action reject any other email, even with a valid session.
 - After sign-in, redirect to `/app`.
 - `middleware.ts` protects `/app/:path*` and `/api/cockpit/:path*`. No session means a redirect to `/login`.
 - Turn on RLS on every `ps_` table with policy `auth.email() = any(allowed_emails)`. The service role key is used only in cron handlers on the server.
@@ -58,7 +58,7 @@ The pages, with plain names in the UI:
 - Top band: plan day X of 10 and today's task from `ps_events`.
 - **Deadlines:** jobs closing within 3 days, in pomegranate, at the top.
 - **Top matches:** 5 cards. Each card shows company, role, location, employment type (must say Permanent, full-time), final score, both fit scores, and the primary strength from the Gift Read in professional words (for example "Solutions and translation").
-- **Drafts waiting:** count of drafts in linneajobs@gmail.com that I haven't opened, with a button "Open Gmail drafts" linking to `https://mail.google.com/mail/u/?authuser=linneajobs@gmail.com#drafts`.
+- **Drafts waiting:** count of drafts in linneacv@gmail.com that I haven't opened, with a button "Open Gmail drafts" linking to `https://mail.google.com/mail/u/?authuser=linneacv@gmail.com#drafts`.
 - **Pipeline strip:** counts for Found, Drafted, Sent, Interview, Offer.
 
 ### 4.2 Jobs (`/app/jobs`), the Court
@@ -80,7 +80,7 @@ The pages, with plain names in the UI:
   - **Cover letter:** an editable rich-text editor with the draft. Buttons: "Regenerate", "Shorter", "More confident", "Swedish / English". Swedish text shows LanguageTool errors and the KBLab svengelska flags inline, each with a one-click fix.
   - **LinkedIn message:** editable, with a live counter for the 80-word limit and a Copy button.
   - **Contact:** the hiring manager or a team member if known (name, LinkedIn URL), editable.
-  - **"Save to Gmail drafts"** button: IMAP APPEND to linneajobs@gmail.com with the chosen CV attached. After success, show "Draft saved. Open Gmail to send." with a link. Nothing on this page ever sends.
+  - **"Save to Gmail drafts"** button: IMAP APPEND to linneacv@gmail.com with the chosen CV attached. After success, show "Draft saved. Open Gmail to send." with a link. Nothing on this page ever sends.
   - **"I sent it"** button: marks the application Sent with today's date and schedules a follow-up draft for 5 days later.
 - Each save runs the banned-terms guard and the style linter. A failure shows the exact sentence in red and blocks the save.
 
@@ -126,15 +126,15 @@ The pages, with plain names in the UI:
 
 ## 6. Environment variables (look these up yourself first)
 
-`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `GMAIL_DRAFTS_USER=linneajobs@gmail.com`, `GMAIL_DRAFTS_APP_PASSWORD`, `LANGUAGETOOL_URL`, `HUGGINGFACE_API_KEY`, `CRON_SECRET`, `COCKPIT_ALLOWED_EMAILS`.
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `GMAIL_DRAFTS_USER=linneacv@gmail.com`, `GMAIL_DRAFTS_APP_PASSWORD`, `LANGUAGETOOL_URL`, `HUGGINGFACE_API_KEY`, `CRON_SECRET`, `COCKPIT_ALLOWED_EMAILS`.
 
-The only one likely missing is the Gmail app password for linneajobs@gmail.com. If it is missing, finish everything else, deploy, and put a single line at the top of `/app`: "Add GMAIL_DRAFTS_APP_PASSWORD in Vercel to turn on drafts". Then ask me for it in your final message.
+The only one likely missing is the Gmail app password for linneacv@gmail.com. If it is missing, finish everything else, deploy, and put a single line at the top of `/app`: "Add GMAIL_DRAFTS_APP_PASSWORD in Vercel to turn on drafts". Then ask me for it in your final message.
 
 ## 7. Deploy
 
 1. Link the repo to a new Vercel project named `persephone` (or reuse it if it exists). Production branch: the current default branch.
 2. Set all env vars for Production and Preview.
 3. In Supabase Auth, set the Site URL to the Vercel production URL and add the redirect `https://<prod>/auth/callback`.
-4. Deploy. Check `/` loads without auth, `/app` redirects to `/login`, the magic link works for linneajobs@gmail.com, and any other email is refused.
+4. Deploy. Check `/` loads without auth, `/app` redirects to `/login`, the magic link works for linneacv@gmail.com, and any other email is refused.
 5. Run the daily agent once with `DRY_RUN=1` and confirm drafts land under the label `Persephone/Test`.
 6. Write `docs/DEPLOY.md` with the production URL, how to add a custom domain later (for example linneamoritz.dev), the env var list and the test results. Then stop.

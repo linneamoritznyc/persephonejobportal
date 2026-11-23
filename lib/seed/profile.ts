@@ -9,7 +9,7 @@ export const PROFILE = {
   name: "Linnea Moritz",
   headline: "AI builder: automation, voice agents, martech",
   location: "Stockholm",
-  email: "linneajobs@gmail.com",
+  email: "linneacv@gmail.com",
   website: "https://linneamoritzdev.vercel.app",
   linkedin: "https://www.linkedin.com/in/linneamoritz",
   github: "https://github.com/linneamoritznyc",

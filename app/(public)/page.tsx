@@ -104,7 +104,7 @@ export default async function Portfolio({ searchParams }: { searchParams: Promis
         <h2 style={{ color: "#fff" }}>Let&apos;s build the next one together</h2>
         <p>I&apos;m looking for a full-time, in-office role in Stockholm in AI automation, martech or AI product. Swedish and English are both native.</p>
         <div className="row">
-          <a className="btn" href="mailto:linneajobs@gmail.com">linneajobs@gmail.com</a>
+          <a className="btn" href="mailto:linneacv@gmail.com">linneacv@gmail.com</a>
           <a className="btn o" href="https://www.linkedin.com/in/linneamoritz">LinkedIn</a>
           <a className="btn o" href="https://github.com/linneamoritznyc">GitHub</a>
         </div>

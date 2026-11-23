@@ -21,7 +21,7 @@ export async function pushApplicationDraft(sb: SupabaseClient, applicationId: st
   const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Stockholm" });
   const letterPdf = await renderLetter({
     name: "Linnea Moritz",
-    contact: "Stockholm  |  linneajobs@gmail.com  |  linkedin.com/in/linneamoritz  |  github.com/linneamoritznyc",
+    contact: "Stockholm  |  linneacv@gmail.com  |  linkedin.com/in/linneamoritz  |  github.com/linneamoritznyc",
     date,
     company: job.company_name,
     role: job.title,
