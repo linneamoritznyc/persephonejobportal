@@ -294,7 +294,7 @@ export async function saveWritten(ctx: Ctx, jobId: string, w: Written) {
   await ctx.sb.from("ps_drafts").upsert(
     [
       { application_id: appId, kind: "cover_letter", subject: w.subject, body: w.letter, fact_ids: w.factIds, cv_code: w.cv, updated_at: now, edited_by_me: false },
-      { application_id: appId, kind: "email", subject: w.subject, body: w.email, fact_ids: w.factIds, cv_code: w.cv, updated_at: now, edited_by_me: false },
+      { application_id: appId, kind: "email", subject: w.subject, body: w.email, fact_ids: w.factIds, cv_code: w.cv, updated_at: now, edited_by_me: false, gmail_drafted_at: null, gmail_draft_uid: null },
       ...(w.linkedin ? [{ application_id: appId, kind: "linkedin_note", subject: null, body: w.linkedin, fact_ids: [], cv_code: w.cv, updated_at: now, edited_by_me: false }] : []),
     ],
     { onConflict: "application_id,kind" }
