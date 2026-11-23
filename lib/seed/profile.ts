@@ -768,7 +768,7 @@ export const WRITING_RULES = [
   { kind: "style", rule: "Real numbers only, each from a fact in ps_facts. Never invent a number, title, date or employer." },
   { kind: "style", rule: "Confident, specific and high-energy. No filler like \"I am passionate about\"." },
   { kind: "style", rule: "Pitch in three steps, in this order: I see what others miss, I build the fix end to end, I bring people in to use it." },
-  { kind: "fact_rule", rule: "Languages: Swedish and English, both native. Mandarin HSK 3. Never claim Norwegian or Danish. Clubhouse covered the Swedish, Norwegian and Danish markets, which is market ownership." },
+  { kind: "fact_rule", rule: "Languages: Swedish and English, both native. Mandarin HSK 3. Never claim Norwegian or Danish, in any language (no norska, danska). Clubhouse covered the Swedish, Norwegian and Danish markets, which is market ownership." },
   { kind: "fact_rule", rule: "Lead every application with English." },
   { kind: "fact_rule", rule: "The only current role is Soil Food Web Foundation, Contractor, Digital, Content and Grants, Sep 2026 to present. Never invent another title." },
   { kind: "fact_rule", rule: "Feb to Apr 2026 work appears only as two projects, The Financial Healer and PrePartum, under the header \"The Financial Healer and PrePartum, Product and Technical Lead\"." },

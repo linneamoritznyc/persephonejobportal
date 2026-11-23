@@ -79,7 +79,7 @@ export function lintStyle(text: string): string[] {
   if (/\binstead of\b/i.test(text)) v.push("instead of");
   if (/\bnot\b[^.]{1,40},\s*but\b/i.test(text)) v.push("not X, but Y");
   if (/passionate about/i.test(text)) v.push("filler: passionate about");
-  if (/\b(norwegian|danish|norska|danska)\b/i.test(text) && /\b(speak|fluent|language|språk)\b/i.test(text)) v.push("claims Norwegian/Danish");
+  if (/\b(norwegian|danish|norska|danska|norsk|dansk)\b/i.test(text) && /\b(speak|speaks|fluent|language|languages|språk|talar|kunskaper i|professionell)\b/i.test(text)) v.push("claims Norwegian/Danish");
   return v;
 }
 

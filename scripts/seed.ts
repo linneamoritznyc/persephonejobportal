@@ -360,7 +360,7 @@ async function legacy() {
   const add: any[] = [];
   for (const s of await get("user_skills")) {
     const name = String(s.skill_text ?? "").trim().slice(0, 120);
-    if (!name || names.has(name.toLowerCase()) || !ok(name)) continue;
+    if (!name || names.has(name.toLowerCase()) || !ok(name) || /^(norsk|dansk|norweg|danish)/i.test(name)) continue;
     names.add(name.toLowerCase());
     add.push({ name, category: `legacy:${s.category ?? s.skill_type ?? "other"}`, level: 3, role_families: [] });
   }
