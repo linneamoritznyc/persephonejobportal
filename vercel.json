@@ -7,6 +7,6 @@
     "app/api/oracle/route.ts": { "maxDuration": 300 }
   },
   "crons": [
-    { "path": "/api/cron/daily", "schedule": "30 4,5 * * *" }
+    { "path": "/api/cron/daily", "schedule": "30 5 * * *" }
   ]
 }
