@@ -11,7 +11,7 @@ Work through every section in order and commit after each one. Ask me only for a
 
 ## 0. Hard rules (unchanged, still absolute)
 
-1. **Never send an email.** The only email action is IMAP APPEND to `[Gmail]/Drafts` in **linneacv@gmail.com**. CI must fail on any send capability.
+1. **Never send an email.** The only email action is IMAP APPEND to `[Gmail]/Drafts` in **linneamoritzcv@gmail.com**. CI must fail on any send capability.
 2. **Banned terms:** `Black Lotus`, `Black Lotus Ventures`, `BlackLotus`, `CareerGenius`, `PitchGenius`, `VCGenius`. My Feb to Apr 2026 work appears only as **The Financial Healer** and **PrePartum**. Every generator runs `assertNoBannedTerms()` before saving. Never write a reason for this rule anywhere.
 3. **Blocked:** Precis and Precis Digital, plus all gig and rater platforms (Outlier, Lionbridge, Remotasks, DataAnnotation, Appen, TELUS AI, Scale AI rater work).
 4. **Languages:** Swedish and English, both native. Mandarin HSK 3. Lead with my English.
@@ -81,7 +81,7 @@ Source: my Drive PDF `platsbanken_ai_summary.pdf`. Rewriting the CV for every jo
 - **12 prewritten branch CVs** in `ps_cv_versions`, generated ONCE and then frozen until I edit them. The 12 come from 6 role families x 2 registers (startup, corporate). Their lead lines and proof points come from the gifts in section 7.
 - The match picks one branch CV per job. Persona selection is the same idea as the Anti-Apathy portal: an LLM reads the ad and picks the persona, then the CV.
 - The cover letter is the only per-job generation. Use Claude Sonnet with prompt caching on the master resume and the gift bank, so each letter costs cents.
-- **Gmail IMAP drafts:** reuse the antiapathyjobportal IMAP code. It is proven (29 drafts landed in linneamoritzcv@gmail.com). Target linneacv@gmail.com, attach the branch CV PDF, put the subject as `{Role} - Linnea Moritz`.
+- **Gmail IMAP drafts:** reuse the antiapathyjobportal IMAP code. It is proven (29 drafts landed in linneamoritzcv@gmail.com). Target linneamoritzcv@gmail.com, attach the branch CV PDF, put the subject as `{Role} - Linnea Moritz`.
 - **LanguageTool API** check on every Swedish letter.
 - **KBLab/bert-base-swedish-cased:** finish what I started. The HuggingFace key exists and the code never used it. Use it through the HF Inference API to score each Swedish sentence's pseudo-log-likelihood. Flag sentences in the bottom 10% as "svengelska" and show them on the Sword page with a one-click rewrite.
 - **Feedback loop (from v2/FEATURES.md):** when I edit a draft or press thumbs down, Claude reads the diff and writes a new row in `ps_writing_rules`. Future letters follow it.
@@ -191,7 +191,7 @@ Applications pull. This track makes the right people come to me. The agent draft
 2. Hunt: Platsbanken (section 1) and career pages (section 2), with Kompetensgrafen and gift search terms. Keep permanent full-time listings only.
 3. Drop blocked companies, gig titles and banned terms.
 4. Score: both fit methods, then the Gift Read, then the final rank.
-5. Draft the top 5 above 70: branch CV, gift-shaped letter, LinkedIn message, LanguageTool and svengelska checks, banned-terms guard, style linter, then IMAP APPEND to linneacv@gmail.com Drafts.
+5. Draft the top 5 above 70: branch CV, gift-shaped letter, LinkedIn message, LanguageTool and svengelska checks, banned-terms guard, style linter, then IMAP APPEND to linneamoritzcv@gmail.com Drafts.
 6. Mondays: the LinkedIn post draft. Every second Monday: the proof-drop plan.
 7. Deadlines within 3 days go to the top of Throne.
 8. Read Drafts to detect what I sent and update `ps_applications`.

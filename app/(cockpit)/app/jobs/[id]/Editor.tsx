@@ -111,7 +111,7 @@ export default function Editor({ jobId, app, drafts, cvs, facts }: { jobId: stri
       <div className="flex flex-wrap gap-2 pt-1">
         <button className="btn btn-primary" disabled={pending} onClick={() => start(async () => {
           const r = await saveToGmail(app.id);
-          r.ok ? say("Draft saved. Open Gmail to send.", undefined, "https://mail.google.com/mail/u/?authuser=linneacv@gmail.com#drafts") : say(r.error, (r as any).sentence);
+          r.ok ? say("Draft saved. Open Gmail to send.", undefined, "https://mail.google.com/mail/u/?authuser=linneamoritzcv@gmail.com#drafts") : say(r.error, (r as any).sentence);
         })}>{pending ? "Saving..." : "Save to Gmail drafts"}</button>
         <button className="btn btn-ghost" disabled={pending || app.status === "sent"} onClick={() => start(async () => { await markSent(app.id); say("Marked sent. A follow-up draft is ready for day 5."); router.refresh(); })}>{app.status === "sent" ? "Sent" : "I sent it"}</button>
       </div>

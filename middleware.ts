@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 function allowed(email?: string | null) {
-  const list = (process.env.COCKPIT_ALLOWED_EMAILS || "linneacv@gmail.com").split(",").map((e) => e.trim().toLowerCase());
+  const list = (process.env.COCKPIT_ALLOWED_EMAILS || "linneamoritzcv@gmail.com").split(",").map((e) => e.trim().toLowerCase());
   return !!email && list.includes(email.toLowerCase());
 }
 

@@ -23,7 +23,7 @@ export interface DraftInput {
   dryRun?: boolean;
 }
 
-const user = () => process.env.GMAIL_DRAFTS_USER || process.env.GMAIL_USER || "linneacv@gmail.com";
+const user = () => process.env.GMAIL_DRAFTS_USER || process.env.GMAIL_USER || "linneamoritzcv@gmail.com";
 const pass = () => process.env.GMAIL_DRAFTS_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || "";
 
 export function draftsConfigured(): boolean {

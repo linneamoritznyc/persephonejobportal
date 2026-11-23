@@ -7,7 +7,7 @@ You are building **Persephone** (repo: `linneamoritznyc/persephonejobportal`), m
 - Do not ask me questions, show me plans, or wait for approval. Build, test, deploy and verify on your own.
 - The only thing you may ask me for is a missing secret. First look for every secret yourself: in the env vars of my existing Vercel projects (use the Vercel MCP or `vercel env pull` on vetlandajobb, antiapathyjobportal / platsbanken-ai, crosstreeslaborintelligence), in `.env.example` files, and in Supabase via the Supabase MCP. Only if a secret truly can't be found, ask me for exactly that variable in one short line.
 - Never send an email. Never call any send endpoint (Gmail `messages.send`, SMTP send, or any mail API's send). The app only creates drafts.
-- All drafts go into the Drafts folder of **linneacv@gmail.com**. Reuse the IMAP draft method from antiapathyjobportal (it already put 29 working drafts with PDF attachments into linneamoritzcv@gmail.com): connect to imap.gmail.com and APPEND the message to `[Gmail]/Drafts` with `GMAIL_USER=linneacv@gmail.com` and `GMAIL_APP_PASSWORD`. That app password is the one secret you will probably need to ask me for.
+- All drafts go into the Drafts folder of **linneamoritzcv@gmail.com**. Reuse the IMAP draft method from antiapathyjobportal (it already put 29 working drafts with PDF attachments into linneamoritzcv@gmail.com): connect to imap.gmail.com and APPEND the message to `[Gmail]/Drafts` with `GMAIL_USER=linneamoritzcv@gmail.com` and `GMAIL_APP_PASSWORD`. That app password is the one secret you will probably need to ask me for.
 - When everything is live, reply with only: the production URL, the list of env vars you set, and anything you could not finish. Nothing else.
 
 ## Repos to read first and reuse (leave them unchanged)
@@ -26,7 +26,7 @@ You are building **Persephone** (repo: `linneamoritznyc/persephonejobportal`), m
 - **Supabase**: create a new project called `persephone` in the EU (Stockholm or Frankfurt). Enable `pgvector` and `pg_trgm`. Apply migrations through the Supabase MCP. Single user (me), with RLS on every table.
 - **Claude API** (`claude-sonnet-4-6` or newer) for skill extraction, scoring explanations and letters. Use pgvector embeddings for fact retrieval, which replaces Qdrant.
 - **Vercel Cron** runs the agent. All calls to Arbetsförmedlingen and job feeds happen server-side.
-- Auth: Supabase magic link, allowed only for my addresses (linnea.moritz@uni.minerva.edu, linneacv@gmail.com, linneacv@gmail.com).
+- Auth: Supabase magic link, allowed only for my addresses (linnea.moritz@uni.minerva.edu, linneamoritzcv@gmail.com, linneamoritzcv@gmail.com).
 
 ## The smart database (prefix every table `ps_`)
 
@@ -65,7 +65,7 @@ Add useful views: `ps_v_today` (new matches from the last 24 hours, ranked), `ps
 3. **Understand:** Claude extracts required and preferred skills and years required into `ps_job_skills`, and embeds the job.
 4. **Score:** run the crosstrees fit score (with Wilson CI) and the vetlandajobb thresholds. Store a `why` sentence, and the years gap separately.
 5. **Write:** for every match of 85 or higher with an open deadline, pick the CV version, retrieve the 6 most relevant facts by embedding, write an English cover letter and a short email following my writing rules, and cite fact ids. Save to `ps_drafts`.
-6. **Draft:** create the email with the cover letter PDF and the right CV PDF attached as a draft in linneacv@gmail.com (IMAP APPEND to `[Gmail]/Drafts`). Never send it.
+6. **Draft:** create the email with the cover letter PDF and the right CV PDF attached as a draft in linneamoritzcv@gmail.com (IMAP APPEND to `[Gmail]/Drafts`). Never send it.
 7. **Track:** create or update `ps_applications`, log `ps_events`, and finish the `ps_agent_runs` row.
 
 **Agentic control:** a `/oracle` page plus API routes so I (or Claude, through an MCP-style JSON endpoint) can trigger runs, pause the cron, toggle sources, edit keyword families, re-score, regenerate a draft, and read run logs. Protect it with my login plus a `PERSEPHONE_ADMIN_TOKEN`.
@@ -106,7 +106,7 @@ Add useful views: `ps_v_today` (new matches from the last 24 hours, ranked), `ps
 **3. Sword `/job/[id]` (one job)**
 - Left: the ad, the company facts, the deadline and a link to the original.
 - Right: the match panel. A big score ring with its confidence interval, skills I have as green chips, gaps as amber chips, the years gap, and the why.
-- Below: the cover letter and email editor (editable, autosaved to `ps_drafts`) with the cited facts listed underneath, the CV version selector, and a "Create draft in linneacv@gmail.com" button. Show a toast when the draft exists. Add a regenerate button with a field for an instruction.
+- Below: the cover letter and email editor (editable, autosaved to `ps_drafts`) with the cited facts listed underneath, the CV version selector, and a "Create draft in linneamoritzcv@gmail.com" button. Show a toast when the draft exists. Add a regenerate button with a field for an instruction.
 - Bottom: interview prep. The 3 most relevant stories from `ps_stories` and 5 likely questions.
 
 **4. Harvest `/harvest` (all jobs)**
@@ -130,12 +130,12 @@ Add useful views: `ps_v_today` (new matches from the last 24 hours, ranked), `ps
 2. Correct these known errors from older material: the lead scoring numbers are **per month** (959 to 6,603, 6.9x), The Financial Healer and PrePartum work ran **Feb to Apr 2026**, the Minerva Alumni Ambassador role has **ended**, and SFW is the **only current job**.
 3. Load the 6 role families, the companies above (Precis blocked), and the crosstrees occupation graph.
 4. Generate the 3 CV PDFs into Supabase Storage.
-5. Run the agent once, and check that at least one draft lands in linneacv@gmail.com.
+5. Run the agent once, and check that at least one draft lands in linneamoritzcv@gmail.com.
 
 ## Deploy and verify (do all of this yourself)
 
 1. Create the repo content, then the Vercel project and the Supabase project, apply the migrations, set every env var, deploy to production, and set up the cron.
-2. Verify: the site loads, login works, the agent run completes, matches appear on Throne, one draft exists in linneacv@gmail.com, and nothing was sent.
+2. Verify: the site loads, login works, the agent run completes, matches appear on Throne, one draft exists in linneamoritzcv@gmail.com, and nothing was sent.
 3. Fix anything that fails, then redeploy.
 4. Reply with the production URL, the env vars, and anything unfinished.
 
