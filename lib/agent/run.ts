@@ -49,7 +49,7 @@ export async function runAgent(opts: RunOpts) {
     say(`Hunt: ${h.found} kept, ${h.fresh} new, dropped blocked ${h.dropped.blocked}, gig ${h.dropped.gig}, non-permanent ${h.dropped.temp}`);
 
     // 4. Understand + score: new jobs first, then any open job without a crosstrees score
-    const { data: unscored } = await sb.from("ps_jobs").select("*").eq("is_open", true).is("understood_at", null).is("blocked_reason", null).order("first_seen_at", { ascending: false }).limit(opts.maxUnderstand ?? 60);
+    const { data: unscored } = await sb.from("ps_jobs").select("*").eq("is_open", true).is("understood_at", null).is("blocked_reason", null).order("first_seen_at", { ascending: false }).limit(opts.maxUnderstand ?? 120);
     const queue = [...(unscored ?? [])];
     const workers = Array.from({ length: 6 }, async () => {
       while (queue.length && left() > 120_000) {
@@ -71,21 +71,25 @@ export async function runAgent(opts: RunOpts) {
     await Promise.all(workers);
     say(`Scored ${counts.matches_created} jobs`);
 
-    // 5. Draft the top 5 above 70 that have no application yet
-    const { data: top } = await sb
-      .from("ps_matches")
-      .select("job_id,rank_score,score,primary_gift,gift_read,family_id,ps_jobs!inner(*)")
-      .eq("method", "crosstrees_v1")
-      .eq("ps_jobs.is_open", true)
-      .is("ps_jobs.blocked_reason", null)
-      .neq("ps_jobs.status", "closed")
-      .gte("rank_score", 70)
-      .order("rank_score", { ascending: false })
-      .limit(25);
+    // 5. Draft: AI mode top 5 above 70, Local mode top 3 above 60 (no application yet)
     const { data: apps } = await sb.from("ps_applications").select("job_id");
     const has = new Set((apps ?? []).map((a: any) => a.job_id));
     const blockedIds = new Set(ctx.companies.filter((c: any) => c.blocked).map((c: any) => c.id));
-    const picks = (top ?? []).filter((m: any) => !has.has(m.job_id) && !blockedIds.has(m.ps_jobs.company_id)).slice(0, opts.draftTop ?? 5);
+    const pickFor = async (mode: "ai" | "local", min: number, n: number) => {
+      const { data: top } = await sb
+        .from("ps_matches")
+        .select("job_id,rank_score,score,primary_gift,gift_read,family_id,ps_jobs!inner(*)")
+        .eq("method", "crosstrees_v1")
+        .eq("ps_jobs.is_open", true)
+        .eq("ps_jobs.mode", mode)
+        .is("ps_jobs.blocked_reason", null)
+        .neq("ps_jobs.status", "closed")
+        .gte("rank_score", min)
+        .order("rank_score", { ascending: false })
+        .limit(25);
+      return (top ?? []).filter((m: any) => !has.has(m.job_id) && !blockedIds.has(m.ps_jobs.company_id)).slice(0, n);
+    };
+    const picks = [...(await pickFor("ai", 70, opts.draftTop ?? 5)), ...(await pickFor("local", 60, 3))];
     for (const m of picks) {
       if (left() < 45_000) break;
       try {

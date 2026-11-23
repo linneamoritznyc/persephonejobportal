@@ -18,10 +18,11 @@ export interface Understanding {
   };
 }
 
-export async function understandJob(ctx: Ctx, job: { title: string; company_name: string; description: string | null }, meter?: CostMeter): Promise<Understanding> {
+export async function understandJob(ctx: Ctx, job: { title: string; company_name: string; description: string | null; mode?: string }, meter?: CostMeter): Promise<Understanding> {
+  const local = job.mode === "local";
   const gifts = ctx.gifts.map((g: any) => `${g.id} (${(g.professional_language ?? []).join(", ")})`).join("; ");
   const families = ctx.families.map((f: any) => `${f.id}: ${f.name}`).join("; ");
-  const mine = ctx.skills.map((s) => s.name).join(", ");
+  const mine = (local ? ctx.localSkills : ctx.skills).map((s) => s.name).join(", ").slice(0, 6000);
   const desc = (job.description ?? "").slice(0, 7000) || "(no description; infer the typical requirements for this exact title at this company)";
   return askJson<Understanding>({
     model: HAIKU,
@@ -31,7 +32,7 @@ export async function understandJob(ctx: Ctx, job: { title: string; company_name
       "You read a job posting and return JSON only.",
       "skills: 6 to 16 items. Use the candidate's skill names where the posting asks for the same thing. Candidate skills: " + mine,
       "importance: required | preferred | bonus. years: number or null.",
-      "permanent_full_time: true if permanent full-time, false if contract, freelance, interim, part-time, staffing agency or fixed-term, null if unclear.",
+      local ? "permanent_full_time: true unless the ad is gig, rater or annotation work (local jobs of any employment type are fine)." : "permanent_full_time: true if permanent full-time, false if contract, freelance, interim, part-time, staffing agency or fixed-term, null if unclear. For US remote consulting roles, true unless it is gig, rater or annotation work.",
       "family: the best role family id. Families: " + families,
       "gift_read: which strengths the ad calls for, from this list only: " + gifts + ". gift_fit 0 to 1 is how strongly the ad calls for the candidate's top strengths. evidence_in_ad quotes the ad's own words.",
       'Shape: {"skills":[{"name":"","importance":"required","years":null}],"years_required":null,"permanent_full_time":true,"family":"1","gift_read":{"gifts_called_for":[{"gift":"interpretation","evidence_in_ad":"","weight":0.9}],"primary_gift":"interpretation","secondary_gift":"craftsmanship","gift_fit":0.7}}',

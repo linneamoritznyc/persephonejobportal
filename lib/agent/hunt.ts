@@ -4,6 +4,8 @@ import { fetchJobTech } from "../hunt/platsbanken";
 import { fetchCompanyFeed } from "../hunt/careers";
 import { dedupe, dedupeKey, type RawJob } from "../dedupe";
 import { isBlockedCompany, isGigTitle, NON_PERMANENT, findBannedTerm } from "../guard";
+import { fetchVetlanda } from "../hunt/local";
+import { fetchUsConsulting } from "../hunt/us";
 
 export interface HuntResult { found: number; fresh: number; dropped: { blocked: number; gig: number; temp: number }; errors: string[]; newIds: string[] }
 
@@ -49,11 +51,33 @@ export async function hunt(ctx: Ctx, extraTerms: { q: string; tag?: string; gift
     log(`Career pages: ${res.filter((r) => r.status === "fulfilled").length}/${feeds.length} feeds read`);
   }
 
+  // Stockholm track rows so far; add the US consulting and Vetlanda local tracks.
+  raw = raw.map((j) => ({ ...j, mode: "ai", track: "stockholm" }) as any);
+  if (on("us_consulting")) {
+    try {
+      const us = await fetchUsConsulting();
+      raw.push(...us.map((j) => ({ ...j, track: "us", found_by: "us-consulting" }) as any));
+      log(`US AI consulting: ${us.length}`);
+    } catch (e: any) {
+      errors.push(`us: ${e.message}`);
+    }
+  }
+  if (on("local")) {
+    try {
+      const loc = await fetchVetlanda();
+      raw.push(...loc.map((j) => ({ ...j, track: "local", found_by: "vetlanda" }) as any));
+      log(`Vetlanda local: ${loc.length}`);
+    } catch (e: any) {
+      errors.push(`local: ${e.message}`);
+    }
+  }
+
   const dropped = { blocked: 0, gig: 0, temp: tempDropped };
-  raw = raw.filter((j) => {
+  raw = raw.filter((j: any) => {
     if (isBlockedCompany(j.company_name, blockedNames)) return dropped.blocked++, false;
     if (isGigTitle(j.title)) return dropped.gig++, false;
-    if (NON_PERMANENT.test(j.title) || (j.employment_type && !/permanent/i.test(j.employment_type))) return dropped.temp++, false;
+    // Permanent full-time is required on the Stockholm track only.
+    if (j.track === "stockholm" && (NON_PERMANENT.test(j.title) || (j.employment_type && !/permanent/i.test(j.employment_type)))) return dropped.temp++, false;
     if (findBannedTerm(`${j.title} ${j.company_name}`)) return dropped.blocked++, false;
     return true;
   });
@@ -74,7 +98,8 @@ export async function hunt(ctx: Ctx, extraTerms: { q: string; tag?: string; gift
       occupation: j.occupation ?? null, salary_min: j.salary_min ?? null, salary_max: j.salary_max ?? null, salary_currency: j.salary_currency ?? "SEK",
       deadline: j.deadline ?? null, last_seen_at: now, is_open: true, raw: j.raw ?? null, employment_type: j.employment_type ?? "Permanent, full-time",
       dedupe_key: dedupeKey(j.title, j.company_name), found_by_term: j.found_by ?? null,
-      found_by_gift: j.found_by?.startsWith("gift:") ? j.found_by.slice(5) : null, published_at: j.published_at ?? null, track: "stockholm",
+      found_by_gift: j.found_by?.startsWith("gift:") ? j.found_by.slice(5) : null, published_at: j.published_at ?? null,
+      track: j.track ?? "stockholm", mode: j.mode ?? "ai",
     }));
     const { data: up, error } = await ctx.sb.from("ps_jobs").upsert(rows, { onConflict: "source,external_id" }).select("id,source,external_id");
     if (error) errors.push(`upsert: ${error.message}`);
@@ -83,6 +108,6 @@ export async function hunt(ctx: Ctx, extraTerms: { q: string; tag?: string; gift
   }
   // Mark jobs not seen for 3 days in their source as closed (targets are managed by hand).
   await ctx.sb.from("ps_jobs").update({ is_open: false }).neq("source", "target").neq("source", "manual").lt("last_seen_at", new Date(Date.now() - 3 * 86_400_000).toISOString());
-  await ctx.sb.from("ps_sources").update({ last_run_at: now, last_status: errors.length ? "partial" : "ok", last_count: jobs.length }).in("id", ["jobtech", "careers"]);
+  await ctx.sb.from("ps_sources").update({ last_run_at: now, last_status: errors.length ? "partial" : "ok", last_count: jobs.length }).in("id", ["jobtech", "careers", "local", "us_consulting"]);
   return { found: jobs.length, fresh: newIds.length, dropped, errors, newIds };
 }

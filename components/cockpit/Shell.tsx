@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ModeSwitch from "./ModeSwitch";
 
 const NAV = [
   { href: "/app", label: "Today", sub: "Throne", icon: "M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z" },
@@ -19,7 +20,7 @@ function Icon({ d }: { d: string }) {
   );
 }
 
-export default function Shell({ children, banner }: { children: React.ReactNode; banner?: React.ReactNode }) {
+export default function Shell({ children, banner, mode }: { children: React.ReactNode; banner?: React.ReactNode; mode: "ai" | "local" }) {
   const path = usePathname();
   const active = (h: string) => (h === "/app" ? path === "/app" : path.startsWith(h));
   return (
@@ -27,6 +28,7 @@ export default function Shell({ children, banner }: { children: React.ReactNode;
       <aside className="sidebar hidden md:flex fixed inset-y-0 left-0 w-60 flex-col px-4 py-6">
         <Link href="/app" className="px-3 font-mono text-lg tracking-tight text-white">persephone</Link>
         <p className="px-3 text-xs mt-1 text-white/70">Job search without anxiety</p>
+        <div className="mt-5"><ModeSwitch mode={mode} /></div>
         <nav className="mt-8 flex flex-col gap-1">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${active(n.href) ? "active" : ""}`}>
@@ -43,7 +45,7 @@ export default function Shell({ children, banner }: { children: React.ReactNode;
       </aside>
       <main className="md:pl-60 pb-24 md:pb-10">
         {banner}
-        <div className="md:hidden flex items-center justify-between px-4 pt-4 text-white"><Link href="/app" className="font-mono">persephone</Link><a href="/" className="text-xs text-white/80">Portfolio</a></div>
+        <div className="md:hidden flex items-center justify-between gap-3 px-4 pt-4 text-white"><Link href="/app" className="font-mono">persephone</Link><div className="w-44"><ModeSwitch mode={mode} compact /></div></div>
         <div className="mx-auto max-w-6xl px-4 md:px-8 py-6 md:py-10">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-line bg-white/95 backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>

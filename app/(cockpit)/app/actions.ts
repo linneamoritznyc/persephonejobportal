@@ -10,6 +10,7 @@ import { pushApplicationDraft } from "@/lib/agent/draft";
 import { scrapeJobUrl } from "@/lib/hunt/addByUrl";
 import { ask, chat, HAIKU, SONNET } from "@/lib/claude";
 import { findBannedTerm, lintStyle } from "@/lib/guard";
+import { cookies } from "next/headers";
 
 type R<T = {}> = ({ ok: true } & T) | { ok: false; error: string; sentence?: string };
 
@@ -148,7 +149,7 @@ export async function rewriteDraft(draftId: string, mode: "shorter" | "confident
 
 export async function setCv(applicationId: string, code: string): Promise<R> {
   await requireOwner();
-  if (!/^([1-6][SC]|5T)$/.test(code)) return { ok: false, error: "Unknown CV" };
+  if (!/^([1-6][SC]|5T|L)$/.test(code)) return { ok: false, error: "Unknown CV" };
   await db().from("ps_applications").update({ cv_version: code }).eq("id", applicationId);
   await db().from("ps_drafts").update({ cv_code: code }).eq("application_id", applicationId);
   return { ok: true };
@@ -310,4 +311,14 @@ export async function checkSwedish(text: string): Promise<R<{ matches: { message
   } catch (e: any) {
     return { ok: false, error: e.message };
   }
+}
+
+/** Switches between AI mode (Stockholm + US) and Local mode (Vetlanda). */
+export async function setMode(mode: "ai" | "local"): Promise<R> {
+  await requireOwner();
+  const m = mode === "local" ? "local" : "ai";
+  (await cookies()).set("ps_mode", m, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax", httpOnly: false });
+  await db().from("ps_settings").upsert({ key: "mode", value: m, updated_at: new Date().toISOString() });
+  revalidatePath("/app", "layout");
+  return { ok: true };
 }

@@ -3,18 +3,20 @@ import { db } from "@/lib/supabase/admin";
 import ScoreRing from "@/components/cockpit/ScoreRing";
 import { FAMILY, sek, days } from "@/lib/cockpit/format";
 import { unreadDraftCount, draftsAccount } from "@/lib/mail/imapDraft";
+import { getMode, MODES } from "@/lib/mode";
 
 export const metadata = { title: "Today" };
 
 export default async function Today() {
   const sb = db();
+  const mode = await getMode();
   const today = new Date().toISOString().slice(0, 10);
   const in3 = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
   const [plan, deadlines, top, pipeline, gifts, weekly, draftsWaiting] = await Promise.all([
     sb.from("ps_events").select("title,due_date,detail").eq("kind", "plan").order("due_date"),
-    sb.from("ps_matches").select("rank_score,ps_jobs!inner(id,title,company_name,deadline,is_open,blocked_reason)").eq("method", "crosstrees_v1").gte("rank_score", 55).eq("ps_jobs.is_open", true).is("ps_jobs.blocked_reason", null).gte("ps_jobs.deadline", today).lte("ps_jobs.deadline", in3),
-    sb.from("ps_matches").select("score,ci_low,ci_high,rank_score,why,primary_gift,salary_estimate_min,salary_estimate_max,family_id,ps_jobs!inner(id,title,company_name,location,employment_type,deadline,is_open,blocked_reason,status)").eq("method", "crosstrees_v1").eq("ps_jobs.is_open", true).is("ps_jobs.blocked_reason", null).neq("ps_jobs.status", "closed").order("rank_score", { ascending: false }).limit(5),
-    sb.from("ps_applications").select("status"),
+    sb.from("ps_matches").select("rank_score,ps_jobs!inner(id,title,company_name,deadline,is_open,blocked_reason)").eq("method", "crosstrees_v1").gte("rank_score", 55).eq("ps_jobs.mode", mode).eq("ps_jobs.is_open", true).is("ps_jobs.blocked_reason", null).gte("ps_jobs.deadline", today).lte("ps_jobs.deadline", in3),
+    sb.from("ps_matches").select("score,ci_low,ci_high,rank_score,why,primary_gift,salary_estimate_min,salary_estimate_max,family_id,ps_jobs!inner(id,title,company_name,location,employment_type,deadline,is_open,blocked_reason,status,mode)").eq("method", "crosstrees_v1").eq("ps_jobs.mode", mode).eq("ps_jobs.is_open", true).is("ps_jobs.blocked_reason", null).neq("ps_jobs.status", "closed").order("rank_score", { ascending: false }).limit(5),
+    sb.from("ps_applications").select("status,ps_jobs!inner(mode)").eq("ps_jobs.mode", mode),
     sb.from("ps_gifts").select("id,name,professional_language").order("sort"),
     sb.from("ps_applications").select("applied_at").not("applied_at", "is", null),
     unreadDraftCount().catch(() => null),
@@ -24,7 +26,7 @@ export default async function Today() {
   const planDay = plan.data?.find((p: any) => p.due_date === today) ?? plan.data?.find((p: any) => p.due_date > today) ?? null;
   const count = (s: string[]) => (pipeline.data ?? []).filter((a: any) => s.includes(a.status)).length;
   const strip = [
-    ["Found", (await sb.from("ps_v_jobs").select("id", { count: "exact", head: true }).eq("is_open", true)).count ?? 0],
+    ["Found", (await sb.from("ps_v_jobs").select("id", { count: "exact", head: true }).eq("is_open", true).eq("mode", mode)).count ?? 0],
     ["Drafted", count(["drafted"])],
     ["Sent", count(["sent"])],
     ["Interview", count(["interview"])],
@@ -45,7 +47,8 @@ export default async function Today() {
     <div className="space-y-8">
       <header>
         <p className="text-muted text-sm">{date}</p>
-        <h1 className="display text-4xl md:text-5xl mt-1">Good morning, Linnea.</h1>
+        <h1 className="display text-4xl md:text-5xl mt-1">{mode === "local" ? "God morgon, Linnea." : "Good morning, Linnea."}</h1>
+        <p className="text-muted text-sm mt-1">{MODES[mode].label}: {MODES[mode].blurb}</p>
         {planDay ? (
           <div className="card mt-5 p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-3">
             <span className="chip chip-gold num">Day {planDay.detail?.day} of 10</span>

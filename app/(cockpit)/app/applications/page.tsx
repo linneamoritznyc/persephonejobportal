@@ -1,13 +1,15 @@
 import { db } from "@/lib/supabase/admin";
 import Board from "./Board";
 import { FAMILY } from "@/lib/cockpit/format";
+import { getMode } from "@/lib/mode";
 
 export const metadata = { title: "Applications" };
 
 export default async function Applications() {
   const sb = db();
+  const mode = await getMode();
   const [{ data: apps }, { data: matches }, { data: gifts }] = await Promise.all([
-    sb.from("ps_applications").select("*,ps_jobs!inner(id,title,company_name,source,family_id,found_by_term,company_id,blocked_reason)").is("ps_jobs.blocked_reason", null).order("stage_changed_at", { ascending: false }),
+    sb.from("ps_applications").select("*,ps_jobs!inner(id,title,company_name,source,family_id,found_by_term,company_id,blocked_reason,mode)").eq("ps_jobs.mode", mode).is("ps_jobs.blocked_reason", null).order("stage_changed_at", { ascending: false }),
     sb.from("ps_matches").select("job_id,primary_gift,salary_estimate_max").eq("method", "crosstrees_v1"),
     sb.from("ps_gifts").select("id,professional_language"),
   ]);

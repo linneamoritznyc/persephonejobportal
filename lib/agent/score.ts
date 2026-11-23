@@ -8,12 +8,13 @@ import { normalizeSkill, tierFor } from "../match";
 import { salaryFor } from "../salary";
 
 export async function scoreAndStore(ctx: Ctx, job: any, u: Understanding) {
-  const mine = ctx.index.mineSet();
+  const index = job.mode === "local" ? ctx.localIndex : ctx.index;
+  const mine = index.mineSet();
   const jobMap = new Map<string, Importance>();
   const labels: string[] = [];
   const rows: any[] = [];
   for (const s of u.skills ?? []) {
-    const mapped = ctx.index.match(s.name);
+    const mapped = index.match(s.name);
     const key = normalizeSkill(mapped ?? s.name);
     if (!jobMap.has(key)) jobMap.set(key, s.importance);
     labels.push(mapped ?? s.name);
@@ -30,11 +31,11 @@ export async function scoreAndStore(ctx: Ctx, job: any, u: Understanding) {
   const v = scoreJobVetlanda(mine, labels, `${job.title} ${job.description ?? ""}`);
   const company = ctx.companies.find((c: any) => c.id === job.company_id || c.name === job.company_name);
   const gr = u.gift_read;
-  const rank = finalRank({ vetlanda: v.score, crosstreesCiLow: fit?.ci_low ?? null, giftFit: gr?.gift_fit, primaryGift: gr?.primary_gift, isBig: !!company?.is_big_company, deadline: job.deadline });
-  const band = salaryFor(job.title, job.description ?? "");
+  const rank = job.mode === "local" ? finalRank({ vetlanda: v.score, crosstreesCiLow: fit?.ci_low ?? null, deadline: job.deadline }) : finalRank({ vetlanda: v.score, crosstreesCiLow: fit?.ci_low ?? null, giftFit: gr?.gift_fit, primaryGift: gr?.primary_gift, isBig: !!company?.is_big_company, deadline: job.deadline });
+  const band = job.mode === "local" ? { low: 26000, high: 33000 } : salaryFor(job.title, job.description ?? "");
   const family = u.family ?? job.family_id ?? null;
   const yearsGap = u.years_required != null ? Math.max(0, u.years_required - 5) : null;
-  const pretty = (s: string) => ctx.skills.find((x) => normalizeSkill(x.name) === s)?.name ?? s;
+  const pretty = (s: string) => (job.mode === "local" ? ctx.localSkills : ctx.skills).find((x) => normalizeSkill(x.name) === s)?.name ?? s;
   const why = fit
     ? `Has ${fit.matched_required.length} of ${fit.matched_required.length + fit.missing_required.length} required skills${fit.missing_required.length ? `; gaps: ${fit.missing_required.slice(0, 3).map(pretty).join(", ")}` : ""}.`
     : "No structured skills in the ad; scored on title and text.";

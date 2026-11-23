@@ -11,7 +11,7 @@ export async function cvPdf(sb: SupabaseClient, code: string): Promise<Buffer | 
 
 export async function pushApplicationDraft(sb: SupabaseClient, applicationId: string, opts: { dryRun?: boolean } = {}) {
   if (!draftsConfigured()) return { ok: false as const, reason: "Add GMAIL_DRAFTS_APP_PASSWORD in Vercel to turn on drafts" };
-  const { data: app } = await sb.from("ps_applications").select("id,job_id,cv_version,ps_jobs(title,company_name,raw)").eq("id", applicationId).single();
+  const { data: app } = await sb.from("ps_applications").select("id,job_id,cv_version,ps_jobs(title,company_name,raw,mode)").eq("id", applicationId).single();
   const { data: drafts } = await sb.from("ps_drafts").select("*").eq("application_id", applicationId);
   const email = drafts?.find((d: any) => d.kind === "email");
   const letter = drafts?.find((d: any) => d.kind === "cover_letter");
@@ -21,14 +21,15 @@ export async function pushApplicationDraft(sb: SupabaseClient, applicationId: st
   const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Stockholm" });
   const letterPdf = await renderLetter({
     name: "Linnea Moritz",
-    contact: "Stockholm  |  linneamoritzcv@gmail.com  |  linkedin.com/in/linneamoritz  |  github.com/linneamoritznyc",
-    date,
+    contact: job.mode === "local" ? "Vetlanda  |  linneamoritzcv@gmail.com" : "Stockholm  |  linneamoritzcv@gmail.com  |  linkedin.com/in/linneamoritz  |  github.com/linneamoritznyc",
+    date: job.mode === "local" ? new Date().toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Stockholm" }) : date,
     company: job.company_name,
     role: job.title,
     body: letter.body,
   });
   const cv = await cvPdf(sb, app.cv_version ?? "1S");
-  const attachments: { filename: string; content: Buffer }[] = [{ filename: `Linnea Moritz - Cover letter - ${job.company_name}.pdf`, content: Buffer.from(letterPdf) }];
+  const sv = job.mode === "local";
+  const attachments: { filename: string; content: Buffer }[] = [{ filename: sv ? `Linnea Moritz - Personligt brev - ${job.company_name}.pdf` : `Linnea Moritz - Cover letter - ${job.company_name}.pdf`, content: Buffer.from(letterPdf) }];
   if (cv) attachments.push({ filename: `Linnea Moritz - CV.pdf`, content: cv });
   const res = await saveDraft({ to: job.raw?.apply_email ?? null, subject: email.subject ?? `${job.title} - Linnea Moritz`, text: email.body, attachments, dryRun: opts.dryRun });
   await sb.from("ps_drafts").update({ gmail_draft_uid: `${res.mailbox}:${res.uid}`, gmail_drafted_at: new Date().toISOString(), label: res.mailbox }).eq("id", email.id);

@@ -152,8 +152,8 @@ db("DB: blocked companies never appear in any view", async () => {
   assert.ok(!(today ?? []).some((j: any) => isBlockedCompany(j.company_name)));
 });
 
-db("DB: every surfaced job is permanent full-time", async () => {
-  const { data } = await sb!.from("ps_v_jobs").select("title,employment_type").eq("is_open", true);
+db("DB: every surfaced Stockholm-track job is permanent full-time", async () => {
+  const { data } = await sb!.from("ps_v_jobs").select("title,employment_type").eq("is_open", true).eq("track", "stockholm");
   for (const j of data ?? []) {
     assert.ok(/permanent/i.test(j.employment_type ?? ""), `${j.title}: ${j.employment_type}`);
     assert.ok(!isGigTitle(j.title), j.title);

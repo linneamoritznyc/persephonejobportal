@@ -16,6 +16,7 @@ import occupations from "./data/occupations_seed.json";
 import edges from "./data/substitutability_seed.json";
 import escoSkills from "./data/skills_seed.json";
 import * as GX from "../lib/seed/graph";
+import { LOCAL_FACTS, LOCAL_CV } from "../lib/seed/local";
 
 const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
 const ai = new Anthropic();
@@ -406,7 +407,20 @@ async function targetScores() {
   }
 }
 
-const steps: Record<string, () => Promise<unknown>> = { profile, families, experiencesAndFacts, skills, gifts, stories, rules, companies, graph, targets, plan, legacy, cvs, targetScores };
+async function local() {
+  for (const f of LOCAL_FACTS) if (findBannedTerm(f.text)) throw new Error(f.id);
+  must(await sb.from("ps_facts").upsert(LOCAL_FACTS.map((f) => ({ id: f.id, text: f.text, tags: ["local", ...f.tags], role_families: [], strength: 3, source_file: "cv-sv-2026-11-23", numbers: {}, embedding: toPgVector(embed(f.text)) }))), "local facts");
+  const pdf = await renderCv({
+    name: "Linnea Moritz", leadLine: LOCAL_CV.lead, contact: "Vetlanda  |  linneamoritzcv@gmail.com", summary: "",
+    experiences: LOCAL_CV.experiences, skills: LOCAL_CV.skills, education: LOCAL_CV.education, languages: LOCAL_CV.languages, extras: LOCAL_CV.extras,
+    labels: { experience: "Arbetslivserfarenhet", skills: "Kompetenser", education: "Utbildning", languages: "Språk", also: "Ledarskap och engagemang" },
+  });
+  must(await sb.storage.from("cv").upload("branches/L.pdf", Buffer.from(pdf), { upsert: true, contentType: "application/pdf" }), "upload L");
+  must(await sb.from("ps_cv_versions").upsert({ code: "L", name: "Lokalt: Vetlanda (svenska)", lead_line: LOCAL_CV.lead, summary: LOCAL_CV.lead, fact_ids: LOCAL_FACTS.map((f) => f.id), skill_names: LOCAL_CV.skills, role_families: [], register: "local", family: null, base: "L", pdf_path: "cv/branches/L.pdf", generated_at: new Date().toISOString(), frozen: true }), "cv L");
+  console.log("cv L", pdf.length);
+}
+
+const steps: Record<string, () => Promise<unknown>> = { profile, families, experiencesAndFacts, skills, gifts, stories, rules, companies, graph, targets, plan, legacy, cvs, targetScores, local };
 (async () => {
   for (const [name, fn] of Object.entries(steps)) {
     if (only && only !== name) continue;

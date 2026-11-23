@@ -77,7 +77,35 @@ export interface Written {
   portfolio: string;
 }
 
+/** Local mode: a short Swedish letter and email for an in-person job in Vetlanda, with the Swedish CV (L). */
+export async function writeLocalApplication(ctx: Ctx, job: any, meter?: CostMeter, instruction?: string): Promise<Written> {
+  const ad = (job.full_description ?? job.description ?? "").slice(0, 5000);
+  const rules = "Ren text utan markdown. Inga tankstreck (—). Inga överdrifter. Använd bara fakta från profilen och skriv aldrig att hon talar norska eller danska. Skriv som en riktig person.";
+  const letter = await writeChecked(
+    () =>
+      ask({
+        model: SONNET, cached: ctx.masterLocal, meter, maxTokens: 900, temperature: 0.5,
+        system: `Skriv ett personligt brev på naturlig svenska för Linnea Moritz till ett lokalt jobb i Vetlanda. 150 till 230 ord, 3 korta stycken, ingen hälsningsfras överst och inget namnblock. Nämn arbetsgivaren och tjänsten, 2 konkreta saker från annonsen och 2 fakta från profilen som passar. Säg att hon bor i Vetlanda och kan börja direkt. Ange fakta-id inom hakparentes efter meningar som använder fakta. ${rules}`,
+        prompt: `JOBB: ${job.title} hos ${job.company_name}, ${job.location ?? "Vetlanda"}.\nANSTÄLLNING: ${job.employment_type ?? ""}\nANNONS:\n${ad}${instruction ? `\n\nEXTRA: ${instruction}` : ""}`,
+      }),
+    "brev"
+  );
+  const factIds = [...new Set([...letter.matchAll(/\[((?:S|L|F)-[A-Za-z0-9_-]+)\]/g)].map((m) => m[1]))];
+  const letterClean = letter.replace(/\s*\[((?:S|L|F)-[A-Za-z0-9_-]+)\]/g, "").trim();
+  const email = await writeChecked(
+    () =>
+      ask({
+        model: SONNET, cached: ctx.masterLocal, meter, maxTokens: 300,
+        system: `Skriv ett kort ansökningsmejl på svenska, under 70 ord: vilken tjänst, en mening om varför hon passar, att CV och personligt brev är bifogade, och att hon kan börja direkt. Avsluta med "Vänliga hälsningar, Linnea Moritz". ${rules}`,
+        prompt: `${job.title} hos ${job.company_name}`,
+      }),
+    "mejl"
+  );
+  return { letter: letterClean, email, subject: `Ansökan: ${job.title} - Linnea Moritz`, linkedin: "", factIds, cv: "L", portfolio: "" };
+}
+
 export async function writeApplication(ctx: Ctx, job: any, match: { primary_gift?: string | null; gift_read?: any; family_id?: string | null }, meter?: CostMeter, instruction?: string): Promise<Written> {
+  if (job.mode === "local") return writeLocalApplication(ctx, job, meter, instruction);
   const family = match.family_id ?? job.family_id ?? null;
   const company = ctx.companies.find((c: any) => c.id === job.company_id || c.name === job.company_name);
   const cv = pickCv(ctx, family, !!company?.is_big_company, job.language, job.title);
@@ -167,7 +195,7 @@ export async function saveWritten(ctx: Ctx, jobId: string, w: Written) {
     [
       { application_id: appId, kind: "cover_letter", subject: w.subject, body: w.letter, fact_ids: w.factIds, cv_code: w.cv, updated_at: now, edited_by_me: false },
       { application_id: appId, kind: "email", subject: w.subject, body: w.email, fact_ids: w.factIds, cv_code: w.cv, updated_at: now, edited_by_me: false },
-      { application_id: appId, kind: "linkedin_note", subject: null, body: w.linkedin, fact_ids: [], cv_code: w.cv, updated_at: now, edited_by_me: false },
+      ...(w.linkedin ? [{ application_id: appId, kind: "linkedin_note", subject: null, body: w.linkedin, fact_ids: [], cv_code: w.cv, updated_at: now, edited_by_me: false }] : []),
     ],
     { onConflict: "application_id,kind" }
   );

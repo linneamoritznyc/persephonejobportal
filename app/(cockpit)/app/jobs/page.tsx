@@ -1,13 +1,15 @@
 import { db } from "@/lib/supabase/admin";
 import JobsTable from "./JobsTable";
+import { getMode, MODES } from "@/lib/mode";
 
 export const metadata = { title: "Jobs" };
 
 export default async function Jobs({ searchParams }: { searchParams: Promise<{ gift?: string }> }) {
   const { gift } = await searchParams;
   const sb = db();
+  const mode = await getMode();
   const [{ data: jobs }, { data: matches }, { data: apps }, { data: fb }, { data: gifts }] = await Promise.all([
-    sb.from("ps_v_jobs").select("id,title,company_name,location,municipality,deadline,employment_type,url,source,status,wave,family_id,first_seen_at,found_by_term,found_by_gift,saved_for_later,is_open,salary_min,salary_max").eq("is_open", true).order("first_seen_at", { ascending: false }).limit(600),
+    sb.from("ps_v_jobs").select("id,title,company_name,location,municipality,deadline,employment_type,url,source,status,wave,family_id,first_seen_at,found_by_term,found_by_gift,saved_for_later,is_open,salary_min,salary_max,mode,track").eq("is_open", true).eq("mode", mode).order("first_seen_at", { ascending: false }).limit(600),
     sb.from("ps_matches").select("job_id,method,score,ci_low,ci_high,rank_score,primary_gift,salary_estimate_min,salary_estimate_max"),
     sb.from("ps_applications").select("job_id,status"),
     sb.from("ps_feedback").select("job_id,kind").in("kind", ["skipped", "applied", "rejected"]),
@@ -36,10 +38,10 @@ export default async function Jobs({ searchParams }: { searchParams: Promise<{ g
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="display text-4xl">Jobs</h1>
-        <p className="text-muted text-sm mt-1">Permanent, full-time roles in Stockholm, from Platsbanken, career pages and Kompetensgrafen discovery.</p>
+        <h1 className="display text-4xl">{mode === "local" ? "Jobb i Vetlanda" : "Jobs"}</h1>
+        <p className="text-muted text-sm mt-1">{mode === "local" ? "Alla aktuella jobb i Vetlanda från Platsbanken, rankade efter hur bra du passar." : "Permanent, full-time roles in Stockholm (Platsbanken, career pages, Kompetensgrafen) plus US AI consulting."}</p>
       </header>
-      <JobsTable rows={rows} giftNames={giftNames} initialGift={gift ?? ""} />
+      <JobsTable rows={rows} giftNames={giftNames} initialGift={gift ?? ""} mode={mode} />
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { FAMILY, sek, days } from "@/lib/cockpit/format";
 
 type Row = any;
 
-export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[]; giftNames: Record<string, string>; initialGift: string }) {
+export default function JobsTable({ rows, giftNames, initialGift, mode }: { rows: Row[]; giftNames: Record<string, string>; initialGift: string; mode: "ai" | "local" }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [fam, setFam] = useState("");
@@ -16,7 +16,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
   const [source, setSource] = useState("");
   const [gift, setGift] = useState(initialGift);
   const [min, setMin] = useState(0);
-  const [matchesOnly, setMatchesOnly] = useState(true);
+  const [matchesOnly, setMatchesOnly] = useState(mode === "ai");
   const [soon, setSoon] = useState(false);
   const [sort, setSort] = useState<"score" | "deadline" | "newest">("score");
   const [sel, setSel] = useState<Set<string>>(new Set());
@@ -40,6 +40,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
       if (source === "careers" && !j.source.startsWith("company:")) return false;
       if (source === "discovery" && !String(j.found_by_term ?? "").startsWith("discovery:")) return false;
       if (source === "targets" && j.source !== "target") return false;
+      if (source === "us" && j.track !== "us") return false;
       if (min && (j.score ?? 0) < min) return false;
       if (matchesOnly && j.source !== "target" && (j.rank ?? 0) < 55) return false;
       if (soon) {
@@ -73,7 +74,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
         <input className="field md:w-64" placeholder="Search title or company" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="field w-auto" value={fam} onChange={(e) => setFam(e.target.value)}><option value="">All families</option>{Object.entries(FAMILY).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
         <select className="field w-auto" value={wave} onChange={(e) => setWave(e.target.value)}><option value="">All waves</option>{["1", "2", "3", "later"].map((w) => <option key={w} value={w}>Wave {w}</option>)}</select>
-        <select className="field w-auto" value={source} onChange={(e) => setSource(e.target.value)}><option value="">All sources</option><option value="targets">My target list</option><option value="platsbanken">Platsbanken</option><option value="careers">Career pages</option><option value="discovery">Kompetensgrafen discovery</option></select>
+        <select className="field w-auto" value={source} onChange={(e) => setSource(e.target.value)}><option value="">All sources</option><option value="targets">My target list</option><option value="platsbanken">Platsbanken</option><option value="careers">Career pages</option><option value="discovery">Kompetensgrafen discovery</option><option value="us">US consulting</option></select>
         <select className="field w-auto" value={status} onChange={(e) => setStatus(e.target.value)}><option value="">Any status</option>{["open", "check", "rolling", "deadline", "shortlisted", "drafted", "sent"].map((s) => <option key={s}>{s}</option>)}</select>
         <select className="field w-auto" value={gift} onChange={(e) => setGift(e.target.value)}><option value="">Any strength</option>{Object.entries(giftNames).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
         <label className="text-sm text-muted flex items-center gap-2">Min score <input type="number" className="field w-20" value={min} onChange={(e) => setMin(+e.target.value)} /></label>
@@ -109,7 +110,7 @@ export default function JobsTable({ rows, giftNames, initialGift }: { rows: Row[
                 </div>
                 <div className="min-w-0">
                   <Link href={`/app/jobs/${j.id}`} className="font-medium hover:underline">{j.title}</Link>
-                  <p className="text-xs text-muted mt-0.5">{j.company_name} · {j.location || "Stockholm"} · {j.employment_type ?? "Permanent, full-time"}</p>
+                  <p className="text-xs text-muted mt-0.5">{j.company_name} · {j.location || "Stockholm"} · {j.employment_type ?? "Permanent, full-time"}{j.track === "us" ? " · US" : ""}</p>
                   <div className="flex flex-wrap gap-1.5 mt-1.5">
                     {j.wave ? <span className="chip chip-gold">Wave {j.wave}</span> : null}
                     {j.family_id ? <span className="chip">{FAMILY[j.family_id]}</span> : null}
