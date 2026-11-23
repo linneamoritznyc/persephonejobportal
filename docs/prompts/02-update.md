@@ -6,7 +6,7 @@ You are the Claude Code session building **persephonejobportal**. This is a full
 
 ## 0. Hard rules (these override everything, including the original prompt)
 
-1. **Never send an email.** Never call any send endpoint, SMTP send, Gmail `messages.send`, Resend, Postmark, SendGrid or anything like them. The only email action you ever take is IMAP APPEND to `[Gmail]/Drafts` in **linneajobs@gmail.com**. Add a test that fails if any send function or send-capable dependency appears in the codebase. Add a grep check to CI for `sendMail`, `messages.send`, `smtp`, `resend`, `postmark`, `sendgrid`.
+1. **Never send an email.** Never call any send endpoint, SMTP send, Gmail `messages.send`, Resend, Postmark, SendGrid or anything like them. The only email action you ever take is IMAP APPEND to `[Gmail]/Drafts` in **linneacv@gmail.com**. Add a test that fails if any send function or send-capable dependency appears in the codebase. Add a grep check to CI for `sendMail`, `messages.send`, `smtp`, `resend`, `postmark`, `sendgrid`.
 2. **Never name the company that contracted my Feb to Apr 2026 work.** Banned strings: `Black Lotus`, `Black Lotus Ventures`, `BlackLotus`, `blacklotus`, `CareerGenius`, `PitchGenius`, `VCGenius`. That work appears ONLY as two projects: **The Financial Healer** and **PrePartum**. No company name above them, no "venture studio", no "Silicon Valley studio". Never write a reason for this rule in code, comments, docs, seeds, prompts or commit messages. Implement it like this:
    - Add the banned strings to `ps_writing_rules` with `kind = 'banned_term'`.
    - Add a guard function `assertNoBannedTerms(text)` that every generator (CV, cover letter, LinkedIn message, email draft, portfolio copy, interview story) runs before saving. If it finds a banned term, it throws and logs to `ps_agent_runs`. It never saves anything.
@@ -35,7 +35,7 @@ Update `ps_profile`, `ps_experiences` and `ps_facts` to match exactly:
 - **New portfolio (second site):** https://claude.ai/artifact/SnNTvJAniCa4jQQ7LRdXyB (see section 6)
 - **Art:** linneamoritz.com. 39 exhibitions in 21 cities, 3 first prizes including Stockholms Konstsalong 2024, Keeping Tabs collection on a 70 x 30 m LED display at Art Basel Hong Kong.
 - **Education:** Minerva University, economics and business, GPA 3.6, 1.8% admission rate, studied in 5 countries, mentored 45 students through capstones. UWC Red Cross Nordic, full scholarship, chosen from 120 Swedish applicants, IB bilingual diploma (GPA 3.85).
-- **Email:** linneajobs@gmail.com is the only email address, for drafts, login and everything recruiters see. Never use any other address of mine.
+- **Email:** linneacv@gmail.com is the only email address, for drafts, login and everything recruiters see. Never use any other address of mine.
 
 ---
 
@@ -232,11 +232,11 @@ Warm network (Minerva and UWC alumni in Stockholm): ask for a 15-minute call and
 
 1. Pull new jobs (JobSearch API for Stockholm + career pages). Drop blocked companies, gig titles and non-permanent listings.
 2. Keep permanent full-time listings only. Score every new job with both fit methods. Boost big companies by 10.
-3. For the top 5 above 70: pick the CV version by family, generate a cover letter and a LinkedIn message, run the banned-terms guard and the style linter, then IMAP APPEND to linneajobs@gmail.com Drafts with the PDF attached.
+3. For the top 5 above 70: pick the CV version by family, generate a cover letter and a LinkedIn message, run the banned-terms guard and the style linter, then IMAP APPEND to linneacv@gmail.com Drafts with the PDF attached.
 4. Check deadlines. Anything within 3 days goes to the top of Throne in pomegranate.
 5. Read the Drafts folder and update application status.
 6. Write a run summary to `ps_agent_runs` (counts, errors, guard rejections).
-7. Write one morning brief as a draft titled "Persephone, {date}" to linneajobs@gmail.com. It lists today's plan day, new top matches and deadlines. Keep it as a draft and never send it.
+7. Write one morning brief as a draft titled "Persephone, {date}" to linneacv@gmail.com. It lists today's plan day, new top matches and deadlines. Keep it as a draft and never send it.
 
 ---
 
@@ -250,5 +250,5 @@ Warm network (Minerva and UWC alumni in Stockholm): ask for a 15-minute call and
   - Precis and gig companies never appear in any view
   - no em dashes in any generated text
   - Financial Healer and PrePartum appear with dates Feb to Apr 2026 and no company header
-- Do one dry run of the daily agent with `DRY_RUN=1`. It writes drafts to a test label `Persephone/Test` in linneajobs@gmail.com, never to the Inbox, and never sends.
+- Do one dry run of the daily agent with `DRY_RUN=1`. It writes drafts to a test label `Persephone/Test` in linneacv@gmail.com, never to the Inbox, and never sends.
 - Write `docs/CHANGELOG.md` with what changed, the test results and the live URL. Then stop.

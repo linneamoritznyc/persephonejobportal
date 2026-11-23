@@ -12,4 +12,4 @@ Context files:
 - `docs/context/linnea-sfw-work-record.md`: full Soil Food Web Foundation record.
 - `portfolio/index.html`: the live portfolio artifact (https://claude.ai/artifact/SnNTvJAniCa4jQQ7LRdXyB), the exact design to port to `/`.
 
-Hard rules: never send email (drafts only, IMAP APPEND to linneajobs@gmail.com); full-time permanent roles only.
+Hard rules: never send email (drafts only, IMAP APPEND to linneacv@gmail.com); full-time permanent roles only.

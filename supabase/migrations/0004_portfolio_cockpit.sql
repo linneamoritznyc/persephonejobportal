@@ -19,5 +19,5 @@ drop policy if exists "owner all" on ps_rate;
 create policy "owner all" on ps_rate for all to authenticated using (public.ps_is_owner()) with check (public.ps_is_owner());
 create or replace function public.ps_is_owner() returns boolean
 language sql stable security definer set search_path = public as $$
-  select coalesce(lower(auth.jwt() ->> 'email') in ('linneajobs@gmail.com'), false);
+  select coalesce(lower(auth.jwt() ->> 'email') in ('linneacv@gmail.com'), false);
 $$;

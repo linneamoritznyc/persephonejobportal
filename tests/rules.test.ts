@@ -121,7 +121,7 @@ test("PageRank converges and surfaces at least 3 expected discoveries", () => {
 });
 
 test("MIME builder makes a draft with attachments and no send headers", () => {
-  const m = buildMime({ from: "Linnea Moritz <linneajobs@gmail.com>", subject: "Solutions Engineer - Linnea Moritz", text: "Hello", attachments: [{ filename: "cv.pdf", content: Buffer.from("%PDF") }] }).toString();
+  const m = buildMime({ from: "Linnea Moritz <linneacv@gmail.com>", subject: "Solutions Engineer - Linnea Moritz", text: "Hello", attachments: [{ filename: "cv.pdf", content: Buffer.from("%PDF") }] }).toString();
   assert.match(m, /multipart\/mixed/);
   assert.match(m, /filename="cv.pdf"/);
   assert.ok(!/Bcc:|X-Send/i.test(m));
@@ -186,7 +186,7 @@ db("DB: Financial Healer and PrePartum rows carry the right dates", async () => 
   for (const r of data ?? []) assert.equal(r.dates_label, "Feb to Apr 2026");
 });
 
-db("DB: the only allowed login address is linneajobs@gmail.com", async () => {
+db("DB: the only allowed login address is linneacv@gmail.com", async () => {
   const { data } = await sb!.from("ps_profile").select("email").eq("id", 1).single();
-  assert.equal(data?.email, "linneajobs@gmail.com");
+  assert.equal(data?.email, "linneacv@gmail.com");
 });
