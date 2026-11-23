@@ -17,8 +17,21 @@ export class GuardRejection extends Error {
 
 const SPIRITUAL = /\b(spiritual|gift(s|ed)?|calling|anointed|bezalel)\b/i;
 
+/** Removes fact-id tags and any leading "Subject:" line the model may add. */
+export function cleanOutgoing(text: string): string {
+  return text
+    .replace(/^\s*(subject|ämne)\s*:.*\n+/i, "")
+    .replace(/\s*\[((?:F|L|S|P)-[A-Za-z0-9_-]+)(,\s*(?:F|L|S|P)-[A-Za-z0-9_-]+)*\]/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}
+
+export function extractFactIds(text: string): string[] {
+  return [...new Set([...text.matchAll(/\b((?:F|L|S)-[A-Za-z0-9_-]+)\b/g)].map((m) => m[1]).filter((id) => /\d|[A-Z]{2}/.test(id)))];
+}
+
 export function checkOutgoing(text: string, what: string): string {
-  const t = tidy(text);
+  const t = tidy(what === "cover letter" || what === "brev" ? text : cleanOutgoing(text));
   try {
     assertNoBannedTerms(t);
   } catch (e) {
@@ -90,8 +103,8 @@ export async function writeLocalApplication(ctx: Ctx, job: any, meter?: CostMete
       }),
     "brev"
   );
-  const factIds = [...new Set([...letter.matchAll(/\[((?:S|L|F)-[A-Za-z0-9_-]+)\]/g)].map((m) => m[1]))];
-  const letterClean = letter.replace(/\s*\[((?:S|L|F)-[A-Za-z0-9_-]+)\]/g, "").trim();
+  const factIds = extractFactIds(letter);
+  const letterClean = cleanOutgoing(letter);
   const email = await writeChecked(
     () =>
       ask({
@@ -145,8 +158,8 @@ export async function writeApplication(ctx: Ctx, job: any, match: { primary_gift
       }),
     "cover letter"
   );
-  const factIds = [...new Set([...letter.matchAll(/\[(F-[A-Z0-9-]+|L-[A-Z0-9_-]+)\]/g)].map((m) => m[1]))];
-  const letterClean = letter.replace(/\s*\[(F-[A-Z0-9-]+|L-[A-Z0-9_-]+)\]/g, "").trim();
+  const factIds = extractFactIds(letter);
+  const letterClean = cleanOutgoing(letter);
 
   const email = await writeChecked(
     () =>
