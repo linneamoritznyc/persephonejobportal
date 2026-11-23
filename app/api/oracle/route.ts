@@ -7,6 +7,8 @@ import { understandJob } from "@/lib/agent/understand";
 import { scoreAndStore } from "@/lib/agent/score";
 import { writeApplication, saveWritten } from "@/lib/agent/write";
 import { CostMeter } from "@/lib/claude";
+import { saveDraft, draftsConfigured, draftsAccount } from "@/lib/mail/imapDraft";
+import { pushApplicationDraft } from "@/lib/agent/draft";
 
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
@@ -20,6 +22,8 @@ const TOOLS = {
   regenerate_draft: "Rewrite the letter, email and LinkedIn note for a job. args: { jobId: string, instruction?: string }",
   list_runs: "Last 20 agent runs. args: {}",
   list_matches: "Top matches. args: { limit?: number }",
+  test_draft: "Save one test draft (no attachments) in the drafts account to check the IMAP connection. Never sends. args: {}",
+  push_drafts: "Save every written application that has no Gmail draft yet into Gmail Drafts. Never sends. args: {}",
 };
 
 /**
@@ -85,6 +89,18 @@ export async function POST(req: Request) {
       case "list_matches": {
         const { data } = await sb.from("ps_matches").select("score,ci_low,ci_high,rank_score,why,primary_gift,ps_jobs!inner(id,title,company_name,deadline,url,blocked_reason)").eq("method", "crosstrees_v1").is("ps_jobs.blocked_reason", null).order("rank_score", { ascending: false }).limit(args.limit ?? 20);
         return NextResponse.json(data);
+      }
+      case "test_draft": {
+        if (!draftsConfigured()) return NextResponse.json({ ok: false, error: "GMAIL_DRAFTS_APP_PASSWORD is not visible to this deployment" });
+        const r = await saveDraft({ subject: "Persephone test draft", text: "This is a test draft from Persephone. It was saved by IMAP into your Drafts folder and was never sent. You can delete it." });
+        return NextResponse.json({ ok: true, account: draftsAccount(), ...r });
+      }
+      case "push_drafts": {
+        const { data: apps } = await sb.from("ps_applications").select("id,ps_drafts(kind,gmail_drafted_at)").eq("status", "drafted");
+        const todo = (apps ?? []).filter((a: any) => !(a.ps_drafts ?? []).some((d: any) => d.kind === "email" && d.gmail_drafted_at));
+        const out: any[] = [];
+        for (const a of todo) out.push({ id: a.id, ...(await pushApplicationDraft(sb, a.id).catch((e: any) => ({ ok: false, reason: e.message }))) });
+        return NextResponse.json({ ok: true, pushed: out.filter((x) => x.ok).length, results: out });
       }
       default:
         return NextResponse.json({ error: "Unknown tool", tools: TOOLS }, { status: 400 });
