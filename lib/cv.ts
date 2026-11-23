@@ -9,7 +9,7 @@ export function branchCode(fam: number, register: Register) {
   return `${fam}${register === "startup" ? "S" : "C"}`;
 }
 
-const JOB_ORDER = ["sfw", "financial_healer", "prepartum", "onemillion", "independent", "human_bridge", "keeping_tabs", "clubhouse", "tiktok", "youtube", "sacc", "minerva_project", "gtech", "minerva_ambassador"];
+const JOB_ORDER = ["sfw", "financial_healer", "prepartum", "independent", "human_bridge", "keeping_tabs", "clubhouse", "tiktok", "youtube", "sacc", "minerva_project", "gtech", "minerva_ambassador"];
 
 const FAMILY_SKILLS: Record<number, string[]> = {
   1: ["Claude API", "Claude Code", "MCP", "AI automation", "Voice agents", "TypeScript", "Next.js", "React", "Python", "SQL", "Supabase", "Vercel", "Railway", "GitHub Actions", "Jest", "Lovable", "Replit"],
@@ -48,7 +48,12 @@ export function buildCv(fam: number, register: Register): { input: CvInput; lead
         title: "Product and Technical Lead",
         dates: "Feb to Apr 2026",
         location: "Remote, US founders",
-        bullets: [...fh.bullets.map((b) => `The Financial Healer: ${b}`), ...pp.bullets.map((b) => `PrePartum: ${b}`)].slice(0, 6),
+        bullets: [
+          "§The Financial Healer (credit repair, Cleveland)",
+          ...fh.bullets,
+          "§PrePartum (Mother of Many)",
+          ...pp.bullets,
+        ],
       });
       continue;
     }
@@ -59,7 +64,7 @@ export function buildCv(fam: number, register: Register): { input: CvInput; lead
     experiences.push(expLines(e, e.key === "sfw" ? 6 : 3));
   }
 
-  const projects = ["lead_scoring", "kompetensgrafen", "63to11", "anti_apathy", "bidragsguiden", "apex"].map((k) => EXPERIENCES.find((e) => e.key === k)!);
+  const projects = ["lead_scoring", "kompetensgrafen", "63to11", "anti_apathy", "bidragsguiden", "apex", "onemillion"].map((k) => EXPERIENCES.find((e) => e.key === k)!);
   const extras = [
     ...projects.map((p) => `${p.org}: ${p.bullets[0]}`),
     "Repo: github.com/linneamoritznyc/bigquery-lead-scoring-sem",

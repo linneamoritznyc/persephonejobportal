@@ -152,7 +152,10 @@ export async function renderCv(cv: CvInput): Promise<Uint8Array> {
     w.ensure(40);
     w.text(`${e.title}, ${e.org}`, { font: fonts.sansBold, size: 10 });
     w.text([e.dates, e.location].filter(Boolean).join("  |  "), { size: 8.5, color: MUTED, gap: 1 });
-    for (const b of e.bullets) w.text(`•  ${b}`, { size: 9.2, indent: 8 });
+    for (const b of e.bullets) {
+      if (b.startsWith("§")) w.text(b.slice(1), { font: fonts.sansBold, size: 9.2, indent: 4, color: MUTED });
+      else w.text(`•  ${b}`, { size: 9.2, indent: 8 });
+    }
     w.y -= 4;
   }
   w.heading(L.skills);
