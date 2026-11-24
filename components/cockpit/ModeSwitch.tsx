@@ -6,9 +6,9 @@ import { setMode } from "@/app/(cockpit)/app/actions";
 export default function ModeSwitch({ mode, compact = false }: { mode: "ai" | "local"; compact?: boolean }) {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const opts: ["ai" | "local", string, string][] = [["ai", "AI", "Stockholm & US"], ["local", "Lokalt", "Vetlanda"]];
+  const opts: ["ai" | "local", string, string][] = [["local", "Lokalt", "Vetlanda med omnejd"], ["ai", "Tech & AI", "Stockholm · US remote"]];
   return (
-    <div role="group" aria-label="Mode" className={`grid grid-cols-2 gap-1 rounded-2xl bg-white/15 p-1 ${pending ? "opacity-70" : ""}`}>
+    <div role="group" aria-label="Läge / Mode" className={`grid grid-cols-2 gap-1 rounded-2xl bg-white/15 p-1 ${pending ? "opacity-70" : ""}`}>
       {opts.map(([m, label, sub]) => (
         <button
           key={m}

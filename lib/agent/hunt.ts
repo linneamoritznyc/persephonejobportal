@@ -4,7 +4,7 @@ import { fetchJobTech } from "../hunt/platsbanken";
 import { fetchCompanyFeed } from "../hunt/careers";
 import { dedupe, dedupeKey, type RawJob } from "../dedupe";
 import { isBlockedCompany, isGigTitle, NON_PERMANENT, findBannedTerm } from "../guard";
-import { fetchVetlanda } from "../hunt/local";
+import { fetchLocal } from "../hunt/local";
 import { fetchUsConsulting } from "../hunt/us";
 
 export interface HuntResult { found: number; fresh: number; dropped: { blocked: number; gig: number; temp: number }; errors: string[]; newIds: string[] }
@@ -64,9 +64,9 @@ export async function hunt(ctx: Ctx, extraTerms: { q: string; tag?: string; gift
   }
   if (on("local")) {
     try {
-      const loc = await fetchVetlanda();
+      const loc = await fetchLocal();
       raw.push(...loc.map((j) => ({ ...j, track: "local", found_by: "vetlanda" }) as any));
-      log(`Vetlanda local: ${loc.length}`);
+      log(`Vetlanda med omnejd: ${loc.length}`);
     } catch (e: any) {
       errors.push(`local: ${e.message}`);
     }

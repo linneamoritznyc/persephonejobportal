@@ -31,7 +31,8 @@ export async function scoreAndStore(ctx: Ctx, job: any, u: Understanding) {
   const v = scoreJobVetlanda(mine, labels, `${job.title} ${job.description ?? ""}`);
   const company = ctx.companies.find((c: any) => c.id === job.company_id || c.name === job.company_name);
   const gr = u.gift_read;
-  const rank = job.mode === "local" ? finalRank({ vetlanda: v.score, crosstreesCiLow: fit?.ci_low ?? null, deadline: job.deadline }) : finalRank({ vetlanda: v.score, crosstreesCiLow: fit?.ci_low ?? null, giftFit: gr?.gift_fit, primaryGift: gr?.primary_gift, isBig: !!company?.is_big_company, deadline: job.deadline });
+  const home = job.mode === "local" && /vetlanda/i.test(`${job.municipality ?? ""} ${job.location ?? ""}`) ? 5 : 0;
+  const rank = job.mode === "local" ? Math.min(100, finalRank({ vetlanda: v.score, crosstreesCiLow: fit?.ci_low ?? null, deadline: job.deadline }) + home) : finalRank({ vetlanda: v.score, crosstreesCiLow: fit?.ci_low ?? null, giftFit: gr?.gift_fit, primaryGift: gr?.primary_gift, isBig: !!company?.is_big_company, deadline: job.deadline });
   const band = job.mode === "local" ? { low: 26000, high: 33000 } : salaryFor(job.title, job.description ?? "");
   const family = u.family ?? job.family_id ?? null;
   const yearsGap = u.years_required != null ? Math.max(0, u.years_required - 5) : null;

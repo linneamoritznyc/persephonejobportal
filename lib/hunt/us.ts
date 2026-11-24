@@ -1,14 +1,14 @@
-/** AI mode, US track: AI consulting and automation roles on US remote boards. */
+/** AI mode, US track: remote AI, automation and marketing-technology roles on US boards (contract or full-time). */
 import type { RawJob } from "../dedupe";
 import { stripHtml, parseRss } from "./careers";
 
 const UA = { "user-agent": "Persephone/1.0 (personal job search)" };
-const AI = /\b(ai|llm|gpt|claude|genai|generative|automation|agent|machine learning)\b/i;
-const CONSULT = /\b(consult|solutions?|implementation|advisor|architect|strategist|engineer|specialist)\b/i;
+const AI = /\b(ai|llm|gpt|claude|genai|generative|automation|agent|machine learning|martech|marketing technolog\w*|growth|performance marketing|marketing analytics)\b/i;
+const CONSULT = /\b(consult\w*|contract\w*|freelance|solutions?|implementation|advisor|architect|strategist|engineer|specialist|manager|marketer)\b/i;
 
 export async function fetchUsConsulting(): Promise<(RawJob & { mode: "ai" })[]> {
   const out: (RawJob & { mode: "ai" })[] = [];
-  for (const q of ["AI consultant", "AI automation", "AI solutions", "LLM consultant", "generative AI"]) {
+  for (const q of ["AI consultant", "AI automation", "AI solutions", "LLM consultant", "generative AI", "AI contractor", "AI marketing", "marketing automation", "growth marketing AI"]) {
     try {
       const res = await fetch(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(q)}&limit=40`, { headers: UA, cache: "no-store", signal: AbortSignal.timeout(10000) });
       if (!res.ok) continue;
